@@ -1,0 +1,79 @@
+ShowcaseScreen:
+    name: 'Pair Ingredients'
+
+    fullscreen: True
+
+    BoxLayout: 
+        id: bl
+        orientation: 'vertical'
+        padding: [0,0,0,0]
+        canvas.before:
+            Color:
+                rgb: .6, .6, .6
+            Rectangle:
+                size: self.size
+        Popup:
+            id: popup
+            title: "Ingredients List"
+            size_hint: None, None
+            size: 400,400
+            on_parent:
+                if self.parent == bl: self.parent.remove_widget(self)
+            Spinner:
+                id: ingSpinner
+                text: 'Home'
+                values: ('Home', 'Work', 'Other', 'Not defined')
+                size_hint_y: None
+                height: '48dp'
+                on_text: app.pairPopup(ingSpinner.text, popup)
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+
+            padding: [10,0,10,0]
+            BottleButton:
+                on_release: app.setLocation(popup, ingSpinner, 0)
+                id: label1
+                text: app.button_name
+            BottleButton:
+                on_release: popup.open()
+                on_release: app.setLocation(1)
+            BottleButton:
+                on_release: popup.open()
+                on_release: app.setLocation(2)
+            BottleButton:
+                on_release: popup.open()
+                on_release: app.setLocation(3)
+            BottleButton:
+                on_release: popup.open()
+                on_release: app.setLocation(4)
+
+        BoxLayout:
+            padding: [100,0,0,0]
+            orientation: 'horizontal'
+
+            BottleButton:
+                on_release: app.pairPopup(popup, 5)
+            BottleButton:
+                on_release: app.pairPopup(popup, 6)
+            BottleButton:
+                on_release: app.pairPopup(popup, 7)
+            BottleButton:
+                on_release: app.pairPopup(popup, 8)
+
+        BoxLayout:
+            orientation: 'horizontal'
+            padding: [10,0,10,0]
+
+            BottleButton:
+                on_release: app.pairPopup(popup, 9)
+            BottleButton:
+                on_release: app.pairPopup(popup, 10)
+            BottleButton:
+                on_release: app.pairPopup(popup, 11)
+            BottleButton:
+                on_release: app.pairPopup(popup, 12)
+            BottleButton:
+                on_release: app.pairPopup(popup, 13)
+        

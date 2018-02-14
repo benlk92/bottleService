@@ -1,0 +1,1072 @@
+#:kivy 1.9.1
+#:import KivyLexer kivy.extras.highlight.KivyLexer
+#:import Factory kivy.factory.Factory
+#:import BS main
+#:import ListAdapter kivy.adapters.listadapter.ListAdapter
+#:import ListItemButton kivy.uix.listview.ListItemButton
+
+<ManageDrinks>:
+
+<ManageIngredients>:
+
+<MakeDrink>:    
+
+<IngredientListButton>:
+    deselected_color: (0, 0, 0, 1)
+    selected_color: (.196, .643, .807, 1)
+    background_normal: ''
+
+<IngSpinnerOptions@DropDown>:
+    max_height: "295dp"
+
+<MyPopup>:
+    id: settttPop
+    title: "Settings"
+    size_hint: None, None
+    size: 400,400
+    BoxLayout:
+        orientation: 'vertical'
+
+        Button:
+            text: "Home"
+            on_press: root.manager.current = 'One'
+            on_press: settttPop.dismiss()
+
+        Button:
+            text: "Manage Recipes"
+            on_press: root.manager.current = 'Eight'
+            on_press: settttPop.dismiss()
+
+        Button:
+            text: "Manage Ingredients"
+            on_press: root.manager.current = 'Three'
+            on_press: settttPop.dismiss()
+
+        Button:
+            text: "Pair Ingredients"
+            on_press: root.manager.current = 'Two'
+            on_press: settttPop.dismiss()
+
+        Button:
+            text: "Manage Bottle Service"
+            on_press: root.manager.current = 'Six'
+            on_press: settttPop.dismiss()
+
+        Button:
+            text: "General Settings"
+            on_press: root.manager.current = 'Seven'
+            on_press: settttPop.dismiss()
+
+        Button:
+            text: "Save Settings"
+            on_press: app.save()
+            on_press: settttPop.dismiss()
+
+<MessagePopup>:
+    id: messagePop
+    title: ""
+    size_hint: None, None
+    size: 400,200
+    labelText: ""
+    buttonText: "Dismiss"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            halign: "center"
+            text: root.labelText
+        Button:
+            text: root.buttonText
+            on_press: root.dismiss()
+
+<OptionPopup>:
+    id: optionPopup
+    title: ""
+    size_hint: None, None
+    size: 400,200
+    labelText: ""
+    okayButton: okayButton
+    cancelButton: cancelButton
+    BoxLayout:
+        padding: 10
+        orientation: 'vertical'
+        Label:
+            id: subLabel
+            halign: "center"
+            text: root.labelText
+        BoxLayout:
+            spacing: 10
+
+            Button:
+                id:okayButton
+                text: "Yes"
+                size_hint_y: None
+                height: '40dp'
+            Button:
+                id:cancelButton
+                text: "Cancel"
+                on_press: root.dismiss()
+                size_hint_y: None
+                height: '40dp'
+
+<ProgressPopup>:
+    id:progressPop 
+    title: "Drink Progress"
+    size_hint: None, None
+    size: 400,300
+    pbValue: 0
+    instructionsText: ""
+    manager: None
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: 'Progress: {}%'.format(int(pb.value))
+            size_hint_y: None
+            height: '40dp'
+
+        ProgressBar:
+            id: pb
+            size_hint_y: None
+            height: '40dp'
+            value: root.pbValue
+
+        Button:
+            id: instructions
+            text: progressPop.instructionsText
+            halign: "center"
+            on_press: 
+                if pb.value == 100: progressPop.manager.current = "One"
+            on_press: 
+                if pb.value == 100:progressPop.dismiss()
+
+
+
+<CountPopup>:
+    id:countPop 
+    title: "Just one?"
+    size_hint: None, None
+    size: 400,200
+    manager: None
+    BoxLayout:
+        textTest: 'countLayout'
+        orientation: 'vertical'
+
+        BoxLayout:
+
+            Button:
+                background_color: (0,0,0,0)
+                background_normal: ''
+                on_press: 
+                    if int(drinkCount.text[0]) > 2: drinkCount.text = (str(int(drinkCount.text[0]) - 1) + " Drinks")
+                    elif int(drinkCount.text[0]) == 2: drinkCount.text = (str(int(drinkCount.text[0]) - 1) + " Drink")
+
+
+
+                Image:
+                    source: 'data/icons/minus.png'
+                    y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                    x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                    size_hint_y: None
+                    size_hint_x: None
+                    height: 20
+                    width: 20
+
+            Label:
+                id: drinkCount
+                size_hint_x: None
+                width: "40dp"
+                halign: "center"
+                text: "1 Drink"
+
+            Button:
+                background_color: (0,0,0,0)
+                background_normal: ''
+                on_press: if int(drinkCount.text[0]) < 9: drinkCount.text = (str(int(drinkCount.text[0]) + 1) + " Drinks")
+
+
+                Image:
+                    source: 'data/icons/plus2.png'
+                    y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                    x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                    size_hint_y: None
+                    size_hint_x: None
+                    height: 20
+                    width: 20
+
+        Button:
+            id: countButton
+            textTest: "button"
+            text: "Pour Drinks!"
+            on_press: countPop.dismiss()
+            count: drinkCount.text
+
+
+<NewIngPopup>:
+    id:newIngPopup 
+    title: "Manage Ingredient"
+    size_hint: None, None
+    size: 400,400
+    brand: brand
+    ingName: ingName
+    ingTypeSpinner: ingTypeSpinner
+    inStockToggle: inStockToggle
+    manualToggle: manualToggle
+    submitButton: submitButton
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 20
+        padding: 20
+
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+            Label:
+                text: "Brand"
+
+
+            TextInput:
+                id: brand
+                size_hint_x: None
+                width: 250
+                text: ""
+                multiline: False  
+                write_tab: False  
+
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+            Label:
+                text: "Ingredient"
+
+            TextInput:
+                id: ingName
+                size_hint_x: None
+                width: 250
+                text: ""
+                multiline: False  
+                write_tab: False  
+
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+            Label:
+                text: "Type"
+
+            Spinner:
+                id: ingTypeSpinner
+                size_hint_x: None
+                width: 250
+                text: "-"
+                values: ['One', 'Two']
+
+        BoxLayout:
+ 
+            size_hint_y: None
+            height: "60dp"
+
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: "Manually Poured\nIngredient"
+                    halign: 'center'
+                CheckBox:
+                    id: manualToggle
+                    canvas.before:
+                        Color:
+                            rgb: 1,1,1
+                        Rectangle:
+                            pos:self.center_x-8, self.center_y-8
+                            size:[16,16]
+
+            BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    text: "Ingredient Currently\nIn Stock"
+                    halign: 'center'
+
+                CheckBox:
+                    id: inStockToggle
+                    canvas.before:
+                        Color:
+                            rgb: (1,1,1)
+                        Rectangle:
+                            pos:self.center_x-8, self.center_y-8
+                            size:[16,16]
+
+        Button:
+            id: submitButton
+            text: "Submit"
+            on_press: root.dismiss()
+
+
+
+
+
+
+BottleService:
+
+<BottleService>:
+    id: bottleApp
+    orientation: "vertical"
+
+    ingPopup: ingPopup
+    ingSpinner: ingSpinner.__self__
+    manager:manager
+
+    ingListView: ingListView
+    drinkListView: drinkListView
+    typeListView: typeListView
+    glassListView: glassListView
+    prepListView: prepListView
+    avaDrinkListView: avaDrinkListView
+
+    typeField: typeField
+    glassField: glassField
+    prepField: prepField
+
+    drinkName: drinkName
+    drinkTitle: drinkTitle
+    shotTitle: shotTitle
+    row0: row0
+    row1: row1
+    row2: row2
+    glassSpinner: glassSpinner
+    prepSpinner: prepSpinner
+    filterSpinner: filterSpinner
+
+    strengthInput: strengthInput
+    ounceInput: ounceInput
+    robotName: robotName
+    maxAmtInput: maxAmtInput
+    shotInput: shotInput
+    calibrationInput: calibrationInput
+
+    manualButton: manualButton
+    submitButton: submitButton
+
+    manualIngSpinner: manualIngSpinner
+
+    BoxLayout:
+        size_hint_y: .1 
+
+        ActionButton:
+            icon: 'data/icons/home3.png'
+            on_press: manager.current = 'One'
+            on_press: if root.initialized == 0: root.popPairIngs() 
+
+        Label:
+            text: robotName.text
+            font_size: 40
+
+        ActionButton:
+            icon: 'data/icons/menu.png'
+            on_press: root.settingsPopup()
+            on_press: if root.initialized == 0: root.popPairIngs() 
+
+
+    Manager:
+        id: manager
+
+        pairScreen: pairScreen
+        manageDrinkScreen: manageDrinkScreen
+        manageIngScreen: manageIngScreen
+        makeScreen: makeScreen
+
+
+        SplashScreen:
+            id: splash
+            manager: manager
+            name: 'Zero'
+
+            Button:
+                text: 'Click to Enter \nBottle Service'
+                on_press: manager.current = 'One'
+                on_press: root.popPairIngs()
+                font_size: 40
+
+        ManageDrinks:
+            id: manageDrinkScreen
+            manager: manager
+            name: 'One'
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: 10
+                spacing: 10
+                
+                BoxLayout:
+                    size_hint_y: None
+                    height: "60dp"
+
+                    BoxLayout:
+
+                    BoxLayout:
+                        size_hint_x: None
+                        width: "400dp"
+
+                        Button:
+                            text: "Make Drink"
+                            font_size: 25
+                            on_press: root.makeDrink(makeBl)
+
+                    BoxLayout:
+         
+                BoxLayout:
+                    size_hint_y: None
+                    height: "40dp"
+                    spacing: 10
+
+                    Button:
+                        text: "Manual Pours"
+                        on_press: manager.current = "Nine"
+                    Button:
+                        text: "Bartender's Choice"
+                        on_press: root.bartendersChoice(makeBl)
+                    
+
+             
+                # Define starting data and point to the ListItemButton
+                # in the Python code
+                ListView:
+                    id: avaDrinkListView
+                    adapter:
+                        ListAdapter(data = [], cls=BS.IngredientListButton)
+
+        PairIngredients:
+            id: pairScreen
+            manager: manager
+            name: 'Two'
+
+            BoxLayout: 
+                id: bl
+                orientation: 'vertical'
+                padding: [0,0,0,0]
+                canvas.before:
+                    Color:
+                        rgb: 0, 0, 0
+                    Rectangle:
+                        size: self.size
+                Popup:
+                    id: ingPopup
+                    title: "Ingredients List"
+                    size_hint: None, None
+                    size: 400,400
+                    on_parent:
+                        if self.parent == bl: self.parent.remove_widget(self)
+                    on_open: ingSpinner.is_open = True
+                    Spinner:
+                        id: ingSpinner
+                        size_hint_y: None
+                        height: '40dp'
+                        on_text: root.pairPopup(ingSpinner.text)
+                        dropdown_cls: Factory.IngSpinnerOptions
+
+                BoxLayout:
+                    id: row0
+                    spacing: 10
+                    padding: [40,10,10,0]
+                    orientation: 'horizontal'                  
+
+                BoxLayout:
+                    id: row1
+                    orientation: 'horizontal'
+                    spacing: 10
+                    padding: [110,0,50,0]
+
+                BoxLayout:
+                    id: row2
+                    orientation: 'horizontal'
+                    spacing: 10
+                    padding: [40,0,10,10]
+
+
+        ManageIngredients:
+            id: manageIngScreen
+            on_leave: root.ingListView.adapter.data.sort()
+            manager: manager
+            name: 'Three'
+            BoxLayout:
+                orientation: "vertical"
+                padding: 10
+                spacing: 10
+             
+                BoxLayout:
+                    size_hint_y: None
+                    height: "40dp"
+                    padding: [20, 0, 20, 0]
+                    spacing: 20
+                    Button:
+                        id: submitButton
+                        text: "New Ingredient"
+                        on_press: root.openNewIngPopup()
+                    Button:
+                        id: submitButton
+                        text: "Edit Ingredient"
+                        on_press: root.openEditIngPopup()
+                    Button:
+                        text: "Delete Ingredient"
+                        on_press: root.deleteIngredient()
+                    Spinner:
+                        id: filterSpinner
+                        text: "No Filter"
+                        values: []
+                        on_text: root.filterIngListView(self.text)
+             
+                # Define starting data and point to the ListItemButton
+                # in the Python code
+                ListView:
+                    id: ingListView
+                    adapter:
+                        ListAdapter(data = [], cls=BS.IngredientListButton)
+
+
+
+
+        ManageIndDrinks:
+            id: manageIngScreen
+            manager: manager
+            name: 'Four'
+
+            BoxLayout:
+                orientation: "vertical"
+                padding: [5,0,0,0]
+                spacing: 5
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "40dp"
+                    padding: [20,0,20,0]
+                    spacing: 10
+             
+                    Label:
+                        text: "Name"
+                        size_hint_x: None
+                        width: "30dp"
+                    TextInput:
+                        font_size: 24
+                        id: drinkName
+                        multiline: False         
+                        write_tab: False                     
+
+
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_x: None
+                        width: "160dp"
+                        Spinner:
+                            id: prepSpinner
+                            text: "Preparation Method"
+
+                    BoxLayout:
+                        orientation: 'vertical'
+                        size_hint_x: None
+                        width: "160dp"
+                        Spinner:
+                            id: glassSpinner
+                            text: "Glassware"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "40dp"
+                    padding: [20,0,20,0]
+                    spacing: 10
+                    Button:
+                        text: "Add Ingredient"
+                        on_press: root.addRow(ingBl)
+                    Button:
+                        text: "Submit"
+                        on_press: 
+                            if drinkName.text !="": root.submitDrink(ingBl)
+                        font_size: 26  
+                        size_hint_x: None
+                        width: "350dp" 
+
+                    Button:
+                        text: "Remove Last Ingredient"
+                        on_press: root.removeRow(ingBl)
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "20dp"
+
+                    Label: 
+                        text: "Type"                        
+                    Label:
+                        text: "Ingredient"
+                    Label:
+                        text: "Ounces"
+
+
+                BoxLayout:
+                    id: ingBl
+                    size_hint_y: None
+                    height: "20dp"
+                    orientation: "vertical"
+
+                BoxLayout:
+
+
+
+        MakeDrink:
+            id: makeScreen
+            manager: manager
+            name: 'Five'
+            BoxLayout:
+                orientation: "vertical"
+                padding: 10
+                spacing: 10
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "60dp"
+                    orientation: 'horizontal'
+                    Button:
+                        id: drinkTitle
+                        text: "Pour Drink"
+                        on_press: root.howManyDrinks(self.drink)
+                        font_size: 25
+                        size_hint_y: None
+                        height: "40dp"
+                        labelName: "Drink"
+                        drink: None
+
+                    Button: 
+                        background_normal: ''
+                        background_color: (0,0,0,1)
+                        size_hint_y: None
+                        height: "40dp"                        
+                        font_size: 30
+                        text: drinkTitle.labelName
+
+                    Button:
+                        id: shotTitle
+                        text: "Pour Shot"
+                        on_press: root.howManyShots(drinkTitle.drink)
+                        font_size: 25
+                        size_hint_y: None
+                        height: "40dp"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "20dp"
+                    Label:
+                        text: "[b]Ingredient[/b]"
+                        markup: True
+                        font_size: 20
+                    Label:
+                        text: "[b]Brand[/b]"
+                        markup: True
+                        font_size: 20
+                    Label:
+                        text: "[b]Strength[/b]"
+                        markup: True
+                        font_size: 20
+                    Label: 
+                        text: "[b]Exclude[/b]"
+                        markup: True
+                        font_size: 20
+
+                BoxLayout:
+                    id: makeBl
+                    size_hint_y: None
+                    height: "20dp"
+                    orientation: 'vertical'
+
+                BoxLayout:
+
+
+
+        ManageBottleService:
+            id: manageBottleServiceScreen
+            manager: manager
+            on_leave: root.updateLists()
+            name: 'Six'
+            
+            BoxLayout:
+                padding: 10
+                spacing: 10
+
+                BoxLayout:
+                    orientation: "vertical"
+                    padding: 10
+                    spacing: 10
+
+                    Label:
+                        text: "Manage Types"
+                        size_hint_y: None
+                        height: "40dp"
+
+                    BoxLayout:
+                        size_hint_y: None
+                        height: "40dp"
+                 
+                        Label:
+                            text: "Type"
+                        TextInput:
+                            id: typeField
+                            multiline: False  
+                            write_tab: False                     
+
+
+                    BoxLayout:
+                        size_hint_y: None
+                        height: "40dp"
+                        Button:
+                            text: "Submit"
+                            size_hint_x: 15
+                            on_press: root.managementAdd(typeField, typeListView, "type")
+                        Button:
+                            text: "Delete"
+                            size_hint_x: 15
+                            on_press: root.manDelConfirm(typeListView, "type")
+                        
+
+                 
+                    # Define starting data and point to the ListItemButton
+                    # in the Python code
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        ListView:
+                            id: typeListView
+                            adapter:
+                                ListAdapter(data = [], cls=BS.IngredientListButton)
+
+
+                BoxLayout:
+                    orientation: "vertical"
+                    padding: 10
+                    spacing: 10
+
+                    Label:
+                        size_hint_y: None
+                        height: "40dp"                       
+                        text: "Manage Glassware"
+                 
+                    BoxLayout:
+                        size_hint_y: None
+                        height: "40dp"
+                 
+                        Label:
+                            text: "Glassware"
+                        TextInput:
+                            id: glassField
+                            multiline: False  
+                            write_tab: False                     
+
+
+                    BoxLayout:
+                        size_hint_y: None
+                        height: "40dp"
+                        Button:
+                            text: "Submit"
+                            size_hint_x: 15
+                            on_press: root.managementAdd(glassField, glassListView, "glass")
+                        Button:
+                            text: "Delete"
+                            size_hint_x: 15
+                            on_press: root.manDelConfirm(glassListView, "glass")
+
+                 
+                    # Define starting data and point to the ListItemButton
+                    # in the Python code
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        ListView:
+                            id: glassListView
+                            adapter:
+                                ListAdapter(data = [], cls=BS.IngredientListButton)
+
+
+                BoxLayout:
+                    orientation: "vertical"
+                    padding: 10
+                    spacing: 10
+
+                    Label:
+                        text: "Manage Preparation \nMethods"
+                        halign: 'center'
+                        size_hint_y: None
+                        height: "40dp"
+
+                    BoxLayout:
+                        size_hint_y: None
+                        height: "40dp"
+                 
+                        Label:
+                            text: "Method"
+                        TextInput:
+                            id: prepField
+                            multiline: False  
+                            write_tab: False                     
+
+
+                    BoxLayout:
+                        size_hint_y: None
+                        height: "40dp"
+                        Button:
+                            text: "Submit"
+                            size_hint_x: 15
+                            on_press: root.managementAdd(prepField, prepListView, "prep")
+                        Button:
+                            text: "Delete"
+                            size_hint_x: 15
+                            on_press: root.manDelConfirm(prepListView, "prep")
+
+                 
+                    # Define starting data and point to the ListItemButton
+                    # in the Python code
+
+                    BoxLayout:
+                        orientation: 'horizontal'
+
+                        ListView:
+                            id: prepListView
+                            adapter:
+                                ListAdapter(data = [], cls=BS.IngredientListButton)
+
+
+
+        GeneralSettings:
+            id: GeneralSettingsScreen
+            manager: manager
+            name: 'Seven'
+            on_leave: root.applySettings()
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 30
+                spacing: 20
+                BoxLayout:
+                    size_hint_y: None
+                    height: "30dp"
+                    spacing: 20
+
+                    Label:
+                        text: "Name"
+                        text_size: self.size
+                        halign: 'right'
+                    TextInput:
+                        id: robotName
+                        text: "BroBot"
+                        multiline: False     
+                        write_tab: False                     
+
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "30dp"
+                    spacing: 20
+
+                    Label:
+                        text: "Strength Slider Maximum Percentage Increase"
+                        text_size: self.size
+                        halign: 'right'
+                    TextInput:
+                        id: strengthInput
+                        multiline: False   
+                        write_tab: False                     
+
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "30dp"
+                    spacing: 20
+
+                    Label:
+                        text: "Ounces Plus/Minus Increment"
+                        text_size: self.size
+                        halign: 'right'
+                    TextInput:
+                        id: ounceInput
+                        multiline: False  
+                        write_tab: False                     
+
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "30dp"
+                    spacing: 20
+
+                    Label:
+                        text: "Maximum Ounces Per Ingredient"
+                        text_size: self.size
+                        halign: 'right'
+                    TextInput:
+                        id: maxAmtInput
+                        multiline: False  
+                        write_tab: False 
+
+                BoxLayout:
+                    spacing: 20
+                    size_hint_y: None
+                    height: "30dp"
+
+                    Label:
+                        text: "Shot Volume (Ounces)"
+                        text_size: self.size
+                        halign: 'right'
+                    TextInput:
+                        id: shotInput
+                        text: "1.5"
+                        multiline: False  
+                        write_tab: False  
+
+                BoxLayout:
+                    spacing: 20
+                    size_hint_y: None
+                    height: "30dp"
+
+                    Label:
+                        text: "Seconds Per Ounce"
+                        text_size: self.size
+                        halign: 'right'
+                    TextInput:
+                        id: calibrationInput
+                        text: "3.0"
+                        multiline: False  
+                        write_tab: False                                             
+
+
+                BoxLayout:
+
+        ManageRecipes:
+            id: ManageRecpiesScreen
+            manager: manager
+            name: 'Eight'
+
+            BoxLayout:
+                orientation: 'vertical'
+                padding: 10
+                spacing: 10
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "40dp"
+                    spacing: 10
+
+                    Button:
+                        text: "Add Recipe"
+                        on_press: root.clearManageDrink(ingBl)
+                    Button:
+                        text: "Manage Recipe"
+                        on_press: root.populateManageDrink(ingBl)
+                    Button:
+                        text: "Delete Recipe"
+                        on_press: root.deleteDrink() 
+
+                BoxLayout:
+                    orientation: 'horizontal'
+
+                    ListView:
+                        id: drinkListView
+                        adapter:
+                            ListAdapter(data = [], cls=BS.IngredientListButton)
+
+
+        Shots:
+            id: ShotsScreen
+            manager: manager
+            name: 'Nine'
+            on_enter: manualIngSpinner.text = '-'
+
+            BoxLayout:
+                orientation: 'vertical'
+                spacing: 20
+                BoxLayout:
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "20dp"
+                    Label:
+                        text: "[b]Ingredient[/b]"
+                        markup: True
+                        font_size: 20
+                    Label:
+                        text: "[b]Amount[/b]"
+                        markup: True
+                        font_size: 20
+
+                BoxLayout:
+                    spacing: 20
+                    size_hint_y: None
+                    padding: [20,0,20,0]
+                    height: "50dp"
+
+                    BoxLayout: 
+                        Spinner:
+                            id: manualIngSpinner
+                            text: "-"
+                            values: []
+
+
+                    BoxLayout:
+
+                        Button:
+                            on_press: root.manualMinus(manualLabelAmt)
+                            background_color: (0,0,0,1)
+                            background_normal: ''
+
+
+                            Image:
+                                source: 'data/icons/minus.png'
+                                y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                                x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                                size_hint_y: None
+                                size_hint_x: None
+                                height: 20
+                                width: 20
+
+                        Label:
+                            id: manualLabelAmt
+                            size_hint_x: None
+                            width: "40dp"
+                            halign: "center"
+                            text: "1.0"
+
+                        Button:
+                            on_press: root.manualPlus(manualLabelAmt)
+                            background_color: (0,0,0,0)
+                            background_normal: ''
+
+
+                            Image:
+                                source: 'data/icons/plus2.png'
+                                y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                                x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                                size_hint_y: None
+                                size_hint_x: None
+                                height: 20
+                                width: 20
+
+
+                BoxLayout:
+                    BoxLayout:
+                    BoxLayout:
+                        Button:
+                            size_hint_y: None
+                            height: "50dp"                        
+                            text: "Pour Exact"
+                            on_press: root.pourExact(manualIngSpinner.text, manualLabelAmt.text)
+
+                    BoxLayout:
+
+                BoxLayout:
+                    BoxLayout:
+                    BoxLayout:
+                        Button:
+                            id: manualButton
+                            size_hint_y: None
+                            height: "50dp"
+                            text: "Pour Manual"
+                            on_press: root.pourManually(manualIngSpinner.text)
+                            on_release: root.manualStop = 1
+                    BoxLayout:
+
+                BoxLayout:
+
+
+

@@ -1,0 +1,18 @@
+#:kivy 1.8.0
+
+<AddDrink>:
+    name: 'Add Drink'
+
+    BoxLayout:
+        size_hint_y: None
+        height: '48dp'
+
+        ToggleButton:
+            id: tbh
+            text: 'Horizontal'
+            group: 'accordion'
+            state: 'down'
+
+        ToggleButton:
+            text: 'Vertical'
+            group: 'accordion'

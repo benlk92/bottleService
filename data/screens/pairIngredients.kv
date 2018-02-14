@@ -1,0 +1,53 @@
+#:kivy 1.8.0
+
+<BottleButton@ActionButton>:
+    icon: 'data/icons/bottle.png'
+    size_hint: None,None
+    size: (150,150) 
+    on_press: app.setCurButton(self)
+
+
+<PairIngredient>:
+    name: 'Pair Ingredients'
+
+    ingPopupPy: ingPopup
+    ingSpinnerPy: ingSpinner
+
+    BoxLayout: 
+        id: bl
+        orientation: 'vertical'
+        padding: [0,0,0,0]
+        canvas.before:
+            Color:
+                rgb: .6, .6, .6
+            Rectangle:
+                size: self.size
+        Popup:
+            id: ingPopup
+            title: "Ingredients List"
+            size_hint: None, None
+            size: 400,400
+            on_parent:
+                if self.parent == bl: self.parent.remove_widget(self)
+            Spinner:
+                id: ingSpinner
+                text: 'Home'
+                values: ('Home', 'Work', 'Other', 'Not defined')
+                size_hint_y: None
+                height: '48dp'
+                on_text: root.pairPopup(ingSpinner.text)
+
+        BoxLayout:
+            orientation: 'horizontal'
+
+            padding: [10,0,10,0]
+            BottleButton:
+                id: butt1
+                ind: 0
+                Label:
+                    text: app.buttNames[0]
+                    pos: app.parent.pos
+                    size: app.parent.size
+
+
+        
