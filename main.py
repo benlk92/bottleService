@@ -20,6 +20,7 @@ Config.set("graphics", "width", "800")
 Config.set("graphics", "height", "480")
 
 
+# Class to represent all ingredients in bottle service
 class Ingredient(object):
     def __init__(self, name, brand = "", location = -1, ingType = "", manual = 0, inStock = 0):
         self.name = name
