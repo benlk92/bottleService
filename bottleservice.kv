@@ -352,7 +352,7 @@ BottleService:
         ActionButton:
             icon: 'data/icons/home3.png'
             on_press: manager.current = 'One'
-            on_press: if root.initialized == 0: root.popPairIngs() 
+            # on_press: if root.initialized == 0: root.popPairIngs() 
 
         Label:
             text: robotName.text
@@ -361,7 +361,7 @@ BottleService:
         ActionButton:
             icon: 'data/icons/menu.png'
             on_press: root.settingsPopup()
-            on_press: if root.initialized == 0: root.popPairIngs() 
+            # on_press: if root.initialized == 0: root.popPairIngs() 
 
 
     Manager:
@@ -373,16 +373,16 @@ BottleService:
         makeScreen: makeScreen
 
 
-        SplashScreen:
-            id: splash
-            manager: manager
-            name: 'Zero'
+        # SplashScreen:
+        #     id: splash
+        #     manager: manager
+        #     name: 'Zero'
 
-            Button:
-                text: 'Click to Enter \nBottle Service'
-                on_press: manager.current = 'One'
-                on_press: root.popPairIngs()
-                font_size: 40
+        #     Button:
+        #         text: 'Click to Enter \nBottle Service'
+        #         on_press: manager.current = 'One'
+        #         on_press: root.popPairIngs()
+        #         font_size: 40
 
         ManageDrinks:
             id: manageDrinkScreen
@@ -1062,8 +1062,8 @@ BottleService:
                             size_hint_y: None
                             height: "50dp"
                             text: "Pour Manual"
-                            on_press: root.pourManually(manualIngSpinner.text)
-                            on_release: root.manualStop = 1
+                            on_press: root.pourManuallyStart(manualIngSpinner.text)
+                            on_release: root.pourManuallyStop(manualIngSpinner.text)
                     BoxLayout:
 
                 BoxLayout:

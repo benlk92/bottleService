@@ -131,7 +131,7 @@ class BottleService(BoxLayout):
     pressurePin = 26
 
     timePerOunce = 3 # second per ounce
-    ullagePressTime = 0.
+    ullagePressTime = 1.
 
 
 
@@ -1367,28 +1367,38 @@ BoxLayout:
         self.makeDrink(layout)
 
 
-    def pourManually(self, ingName):
-        if (ingName != self.unselectedText):
-            t = threading.Thread(target=self.pouring, args = [ingName])
-            t.start()
-        else:
 
+    # def pourManuallyStart(self, ingName):
+    #     if (ingName != self.unselectedText):
+    #         t = threading.Thread(target=self.pouring, args = [ingName])
+    #         t.start()
+    #     else:
+    #         stupidPop = MessagePopup()
+    #         stupidPop.title = "Selection Error"
+    #         stupidPop.labelText = "No ingredient selected."
+    #         stupidPop.buttonText = "Okay"
+    #         stupidPop.open()
+
+    def pourManuallyStart(self, ingName):
+        if (ingName != self.unselectedText):
+            ingPin = self.ingPins[self.ingredientList[ingName].location]
+            GPIO.output(self.pressurePin, 1)
+            GPIO.output(ingPin, 1)
+            print ("Starting")
+
+        else:
             stupidPop = MessagePopup()
             stupidPop.title = "Selection Error"
             stupidPop.labelText = "No ingredient selected."
             stupidPop.buttonText = "Okay"
             stupidPop.open()
 
-    def pouring(self, ingName):
-        ingPin = self.ingPins[self.ingredientList[ingName].location]
-        GPIO.output(self.pressurePin, 1)
-        GPIO.output(ingPin, 1)
-
-        while (self.manualStop == 0):
-            sleep(.1)
-        self.manualStop = 0
-        GPIO.output(self.pressurePin, 0)
-        GPIO.output(ingPin, 0)
+    def pourManuallyStop(self, ingName):
+        if (ingName != self.unselectedText):
+            ingPin = self.ingPins[self.ingredientList[ingName].location]
+            GPIO.output(self.pressurePin, 0)
+            GPIO.output(ingPin, 0)
+        print ("Stopping")
 
 
 
@@ -1470,6 +1480,7 @@ class BottleServiceApp(App):
         BS.prepList = settings[2]["List"]
 
         BS.populate()
+        BS.popPairIngs()
 
         self.BS = BS
 
