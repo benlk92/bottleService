@@ -226,6 +226,7 @@ class BottleService(BoxLayout):
     maxAmtInput = ObjectProperty(None)
     shotInput = ObjectProperty(None)
     calibrationInput = ObjectProperty(None)
+    displayToggle = ObjectProperty(None)
 
     ounceSetting = 0
     strengthSetting = 0
@@ -342,8 +343,8 @@ class BottleService(BoxLayout):
         for drink in self.drinkList.keys():
             filtered = 1
             for ing in self.drinkList[drink].ingredients.keys():
-                if (self.ingredientList[ing].manual == 1):
-                    if (self.ingredientList[ing].inStock == 0):
+                if ((self.ingredientList[ing].manual == 1)):
+                    if ((self.ingredientList[ing].inStock == 0) and (self.displayToggle.active)):
                         filtered = 0
                 else:
                     if (self.ingredientList[ing].location == -1):
@@ -646,6 +647,7 @@ class BottleService(BoxLayout):
         self.timePerOunce = float(self.calibrationInput.text)
         self.ounceSetting = float(self.ounceInput.text)
         self.strengthSetting = float(self.strengthInput.text)
+        self.filterDrinks()
 
     def managementAdd(self, curField, curListView, listType):
 
@@ -1384,7 +1386,6 @@ BoxLayout:
             ingPin = self.ingPins[self.ingredientList[ingName].location]
             GPIO.output(self.pressurePin, 1)
             GPIO.output(ingPin, 1)
-            print ("Starting")
 
         else:
             stupidPop = MessagePopup()
@@ -1398,7 +1399,6 @@ BoxLayout:
             ingPin = self.ingPins[self.ingredientList[ingName].location]
             GPIO.output(self.pressurePin, 0)
             GPIO.output(ingPin, 0)
-        print ("Stopping")
 
 
 
@@ -1463,6 +1463,7 @@ class BottleServiceApp(App):
         BS.shotInput.text = str(float(items[4]))
         BS.calibrationInput.text = str(float(items[5]))
         BS.timePerOunce = float(items[5])
+        BS.displayToggle.active = bool(float(items[6]))
 
 
         BS.ingredientList = ingredientList
@@ -1524,6 +1525,7 @@ class BottleServiceApp(App):
             writer.writerow([self.BS.maxAmtInput.text])        
             writer.writerow([self.BS.shotInput.text])        
             writer.writerow([self.BS.calibrationInput.text])        
+            writer.writerow([str(self.BS.displayToggle.active)])        
 
 
     def _update_clock(self, dt):

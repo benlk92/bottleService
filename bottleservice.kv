@@ -340,6 +340,7 @@ BottleService:
     maxAmtInput: maxAmtInput
     shotInput: shotInput
     calibrationInput: calibrationInput
+    displayToggle: displayToggle
 
     manualButton: manualButton
     submitButton: submitButton
@@ -928,7 +929,26 @@ BottleService:
                         id: calibrationInput
                         text: "3.0"
                         multiline: False  
-                        write_tab: False                                             
+                        write_tab: False 
+
+                BoxLayout:
+                    spacing: 20
+                    size_hint_y: None
+                    height: "30dp"
+
+                    Label:
+                        text: "Filter Drinks By In Stock Manual Ingredients"
+                        text_size: self.size
+                        halign: 'right'
+
+                    CheckBox:
+                        id: displayToggle
+                        canvas.before:
+                            Color:
+                                rgb: 1,1,1
+                            Rectangle:
+                                pos:self.center_x-8, self.center_y-8
+                                size:[16,16]                                            
 
 
                 BoxLayout:
