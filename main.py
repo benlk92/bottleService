@@ -926,7 +926,8 @@ Button:
 
     def deleteDrink(self, confirmPop, curButton):
 
-        confirmPop.dismiss()
+        if (confirmPop != None):
+            confirmPop.dismiss()
 
         # If a list item is selected
         if self.drinkListView.adapter.selection:
@@ -950,12 +951,28 @@ Button:
             if (drinkIng["Spinner"].text != ""):
                 ingredients[drinkIng["Spinner"].text] = {"Amount":float(drinkIng["Label"].text)}
 
-        if (len(ingredients) == 0):
+
+        if (self.drinkName.text.rstrip() == ""):
+            stupidPop = MessagePopup()
+            stupidPop.title = "Name Error"
+            stupidPop.labelText = "This drink has no name :("
+            stupidPop.buttonText = "Okay, it deserves a name."
+            stupidPop.open()
+            return
+
+        elif (len(ingredients) == 0):
+            stupidPop = MessagePopup()
+            stupidPop.title = "Creation Error"
+            stupidPop.labelText = "No ingredients added to this drink."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
             return
 
 
+
+
         if (self.managing == 1):
-            self.deleteDrink()
+            self.deleteDrink(None, None)
 
         if self.prepSpinner.text == self.prepName:
             prepType = ""
@@ -1193,9 +1210,11 @@ BoxLayout:
 
         oldIngs = drink.ingredients
         newIngs = {}
-        
+              
         for ing in oldIngs.keys():
             for ing2 in self.curDrinkManager:
+                toExclude = False
+                curStrength = 0
                 if (ing2["Ingredient"] == ing):
                     curStrength = ing2["Slider"].value
                     toExclude = ing2["Toggle"].active

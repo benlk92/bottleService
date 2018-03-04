@@ -577,8 +577,7 @@ BottleService:
                         on_press: root.addRow(ingBl)
                     Button:
                         text: "Submit"
-                        on_press: 
-                            if drinkName.text !="": root.submitDrink(ingBl)
+                        on_press: root.submitDrink(ingBl)
                         font_size: 26  
                         size_hint_x: None
                         width: "350dp" 
