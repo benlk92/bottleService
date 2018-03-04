@@ -639,16 +639,40 @@ class BottleService(BoxLayout):
                 self.ingListView.adapter.data.sort()
 
     def applySettings(self):
-        self.strengthInput.text = str(round(float(self.strengthInput.text.rstrip()),2))
-        self.ounceInput.text = str(round(float(self.ounceInput.text.rstrip()),2))
-        self.maxAmtInput.text = str(round(float(self.maxAmtInput.text.rstrip()),2))
-        self.shotInput.text = str(round(float(self.shotInput.text.rstrip()),2))
-        self.calibrationInput.text = str(round(float(self.calibrationInput.text.rstrip()),2))
+
+
+        try:
+            self.ounceInput.text = str(round(float(self.ounceInput.text.rstrip()),2))
+        except ValueError:
+            self.ounceInput.text = str(.25)
+
+        try:
+            self.maxAmtInput.text = str(round(float(self.maxAmtInput.text.rstrip()),2))
+        except ValueError:
+            self.maxAmtInput.text = str(4.0)
+
+        try:
+            self.shotInput.text = str(round(float(self.shotInput.text.rstrip()),2))
+        except ValueError:
+            self.shotInput.text = str(1.5)
+
+        try:
+            self.calibrationInput.text = str(round(float(self.calibrationInput.text.rstrip()),2))         
+        except ValueError:
+            self.calibrationInput.text = str(3)   
+
+        try:
+            self.strengthInput.text =  str(round(float(self.strengthInput.text.rstrip()),2))
+        except ValueError:
+            self.strengthInput.text = str(25)
+
+
 
 
         self.timePerOunce = float(self.calibrationInput.text)
         self.ounceSetting = float(self.ounceInput.text)
         self.strengthSetting = float(self.strengthInput.text)
+
         self.filterDrinks()
 
     def managementAdd(self, curField, curListView, listType):
@@ -799,6 +823,7 @@ class BottleService(BoxLayout):
         self.typeListView.adapter.data.sort()
 
         self.typeList.sort()
+
         self.filterSpinner.values = self.filterConstants + self.typeList
 
         self.glassSpinner.values = self.glassList
@@ -879,7 +904,30 @@ Button:
             self.manualIngSpinner.values.sort()
 
 
-    def deleteDrink(self, *args):
+    def deleteDrinkConfirm(self):
+
+        if self.drinkListView.adapter.selection:
+
+            confirmPop = OptionPopup()
+            confirmPop.title = "Deletion Confirmation"
+            confirmPop.labelText = "Deleting %s will obliterate \nit from your entire library." % (self.drinkListView.adapter.selection[0].text)
+            confirmPop.okayButton.bind(on_press = partial(self.deleteDrink, confirmPop))
+            confirmPop.okayButton.text = "Delete"
+            confirmPop.open()
+
+        else:
+            stupidPop = MessagePopup()
+            stupidPop.title = "Selection Error"
+            stupidPop.labelText = "No drink selected to delete."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
+
+
+
+    def deleteDrink(self, confirmPop, curButton):
+
+        confirmPop.dismiss()
+
         # If a list item is selected
         if self.drinkListView.adapter.selection:
 
@@ -969,6 +1017,13 @@ Button:
                 self.glassSpinner.text = drink.glassware
             else: 
                 self.glassSpinner.text = self.glassName
+
+        else:
+            stupidPop = MessagePopup()
+            stupidPop.title = "Selection Error"
+            stupidPop.labelText = "No drink selected to manage."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
 
 
 
