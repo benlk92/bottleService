@@ -347,7 +347,8 @@ class BottleService(BoxLayout):
                     if ((self.ingredientList[ing].inStock == 0) and (self.displayToggle.active)):
                         filtered = 0
                 else:
-                    if (self.ingredientList[ing].location == -1):
+                    ingLocList = [ingCheck.location for ingCheck in self.ingredientList.values() if ingCheck.name.lower() == ing.lower()]
+                    if (not any([test for test in ingLocList if test > 0])):
                         filtered = 0
             if (filtered == 1):
                 filteredDrinks.append(drink)
@@ -1053,7 +1054,8 @@ BoxLayout:
 
 
                         newRow.brands = [ing.brand for ing in self.ingredientList.values() if ((ing.name == drinkIng) & (ing.location != -1))]
-                        newRow.brands.remove("")
+                        if ("" in newRow.brands):
+                            qnewRow.brands.remove("")
                         newRow.brands.append("-")
                         layout.add_widget(newRow)
                         layout.height = (str(drinkCount * 30 + 35) + "dp")
@@ -1525,7 +1527,7 @@ class BottleServiceApp(App):
             writer.writerow([self.BS.maxAmtInput.text])        
             writer.writerow([self.BS.shotInput.text])        
             writer.writerow([self.BS.calibrationInput.text])        
-            writer.writerow([str(self.BS.displayToggle.active)])        
+            writer.writerow([int(self.BS.displayToggle.active)])        
 
 
     def _update_clock(self, dt):

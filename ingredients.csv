@@ -1,50 +1,50 @@
-Grapefruit Juice,,-1,Juice,1,0
-Brandy,,-1,Liquor,0,0
-Gin,Aviation,-1,Liquor,0,0
-Sour Mix,,-1,Juice,1,0
-Orange Slice,,-1,Garnish,1,0
-Crushed Ice,,-1,Garnish,1,1
-Lemon Juice,,-1,Juice,1,1
-Sparkling Water,,-1,Sparkles,1,1
+Grenadine,,-1,Liqueur,1,0
+Triple Sec,Cointreau,7,Liqueur,0,0
 Rum,,6,Liquor,0,0
+Tequila,,5,Liquor,0,0
+Absinthe,,-1,Liqueur,0,0
+Lemon Wedge,,-1,Garnish,1,0
+Scotch,,-1,Liqueur,0,0
+Brandy,,-1,Liquor,0,0
+Rumpleminze,,0,Schnapps,0,0
+Grapefruit Juice,,-1,Juice,1,0
+Orange Curacao,,-1,,0,0
+Club Soda,,-1,Sparkles,1,0
+Citrus Vodka,,-1,Liquor,0,0
+Champagne,,-1,Sparkles,1,1
+Vermouth,,-1,Liqueur,1,1
+Basil,,-1,Garnish,1,0
+Gin,,3,Liquor,0,0
+Light Rum,,13,Liquor,0,0
+Amaretto,,-1,Liqueur,0,0
+Crushed Ice,,-1,Garnish,1,1
+Sparkling Water,,-1,Sparkles,1,1
+Coke,,-1,Sparkles,1,1
+Bitters,,-1,Bitters,1,1
+Honey,,-1,Garnish,1,0
+Gin,Botanist,-1,Liquor,0,0
+Dark Rum,,8,Liquor,0,0
+Bourbon,,-1,Liquor,0,0
+Lime Juice,,-1,Juice,1,1
+Maraschino,,10,Liqueur,0,0
+Triple Sec,,9,Liqueur,0,0
+Gin,Tanq,4,Liquor,0,0
+Vodka,,1,Liquor,0,0
+Whiskey,Wild Turkey,11,Liquor,0,0
+Champagne,Cooks,-1,Sparkles,1,0
+Sour Mix,,-1,Juice,1,0
 Simple Syrup,,-1,Juice,1,1
 Blue Curacao,,-1,Liqueur,0,0
-Scotch,,-1,Liqueur,0,0
-Campari,,-1,Liqueur,0,0
-Vermouth,,-1,Liqueur,1,1
-Triple Sec,,9,Liqueur,0,0
-Orange Curacao,,-1,,0,0
-Rumpleminze,,0,Schnapps,0,0
-Amaretto,,-1,Liqueur,0,0
-Maraschino,,10,Liqueur,0,0
-Gin,New Amsterdam,2,Liquor,0,0
-Bitters,,-1,Bitters,1,1
-Light Rum,,13,Liquor,0,0
-Citrus Vodka,,-1,Liquor,0,0
-Rose's Sweet Lime,,-1,Juice,1,0
-Sugar Cube,,-1,Garnish,1,0
-Honey,,-1,Garnish,1,0
-Gin,,3,Liquor,0,0
 Cherry,,-1,Garnish,1,0
-Coke,,-1,Sparkles,1,1
-Whiskey,,11,Liquor,0,0
-Basil,,-1,Garnish,1,0
-Vodka,,1,Liquor,0,0
-Bourbon,,12,Liquor,0,0
-Gin,Botanist,-1,Liquor,0,0
-Triple Sec,Cointreau,7,Liqueur,0,0
-Club Soda,,-1,Sparkles,1,0
-Lime Juice,,-1,Juice,1,1
-Absinthe,,-1,Liqueur,0,0
-Mint,,-1,Garnish,1,0
-Champagne,,-1,Sparkles,1,1
-Pimms No. 1,,-1,,0,0
-Gin,Tanq,4,Liquor,0,0
-Cranberry Juice,,-1,Juice,1,0
-Grenadine,,-1,Liqueur,1,0
-Champagne,Cooks,-1,Sparkles,1,0
-Tequila,,5,Liquor,0,0
+Sugar Cube,,-1,Garnish,1,0
+Gin,Aviation,-1,Liquor,0,0
 Lemonade,,-1,Juice,1,0
-Lemon Wedge,,-1,Garnish,1,0
-Whiskey,Wild Turkey,-1,Liquor,0,0
-Dark Rum,,8,Liquor,0,0
+Cranberry Juice,,-1,Juice,1,0
+Pimms No. 1,,-1,,0,0
+Campari,,-1,Liqueur,0,0
+Gin,New Amsterdam,2,Liquor,0,0
+Rose's Sweet Lime,,-1,Juice,1,0
+Orange Slice,,-1,Garnish,1,0
+Lemon Juice,,-1,Juice,1,1
+Mint,,-1,Garnish,1,0
+Whiskey,,-1,Liquor,0,0
