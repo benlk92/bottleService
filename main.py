@@ -528,6 +528,7 @@ class BottleService(BoxLayout):
             oldIng.inStock = newIng.inStock
             oldIng.ingType = newIng.ingType
 
+        self.filterDrinks()
 
         # Add the student to the ListView
         self.ingListView.adapter.data.insert(0, listName)
