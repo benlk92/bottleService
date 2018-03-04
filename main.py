@@ -1134,6 +1134,13 @@ BoxLayout:
                                     recipe["Ingredient"] = child.text
                         self.curDrinkManager.append(recipe)
 
+        else:
+            stupidPop = MessagePopup()
+            stupidPop.title = "Selection Error"
+            stupidPop.labelText = "No drink selected to make."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
+
         self.bartenderChoosing = 0
 
 
@@ -1216,16 +1223,17 @@ BoxLayout:
                 ingMessage = ingMessage + str(drink.ingredients[ing]["Amount"]) + " ounces of " + ing + ",\n"
 
             elif (self.ingredientList[ing].manual == 0):
-                for row in self.curDrinkManager:
-                    if ing == row["Ingredient"]:
-                        if (row["Spinner"].text == "-"):
-                            curPin = self.ingPins[self.ingredientList[ing].location]
-                        else:
-                            for ingBrand in self.ingredientList.values():
-                                if (ingBrand.brand == row["Spinner"].text):
-                                    curPin = self.ingPins[ingBrand.location]
-
-                print (curPin)
+                if (len(self.curDrinkManager) > 0):
+                    for row in self.curDrinkManager:
+                        if ing == row["Ingredient"]:
+                            if (row["Spinner"].text == "-"):
+                                curPin = self.ingPins[self.ingredientList[ing].location]
+                            else:
+                                for ingBrand in self.ingredientList.values():
+                                    if (ingBrand.brand == row["Spinner"].text):
+                                        curPin = self.ingPins[ingBrand.location]
+                else:
+                    curPin = self.ingPins[self.ingredientList[ing].location]
 
                 ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * self.timePerOunce, "Pin": curPin}
                 if (drink.ingredients[ing]["Amount"] > maxIng):
@@ -1287,16 +1295,30 @@ BoxLayout:
 
         self.pourDrink(Drink("ShotDrink", ingredients = newIngs, glassware = "Shot Glass", prepMethod = "Straight Up"))
 
-    def pourExact(self, ingName, ingAmount):
+    def pourExactConfirm(self, ingName, ingAmount):
         if (ingName != self.unselectedText):
             ings = {ingName: {"Amount": float(ingAmount)}}
-            self.pourDrink(Drink("ExactDrink", ingredients = ings))
+
+            confirmPop = OptionPopup()
+            confirmPop.title = "Pour Confirmation"
+            confirmPop.labelText = "Pour %s ounces of  %s?" % (ingAmount, ingName)
+            confirmPop.okayButton.bind(on_press = partial(self.pourExact, confirmPop, ings))
+            confirmPop.okayButton.text = "Yes!"
+            confirmPop.open()
+
         else:
             stupidPop = MessagePopup()
             stupidPop.title = "Selection Error"
             stupidPop.labelText = "No ingredient selected."
             stupidPop.buttonText = "Okay"
             stupidPop.open()
+
+
+
+    def pourExact(self, confirmPop, ings, button):
+        confirmPop.dismiss()
+        self.pourDrink(Drink("ExactDrink", ingredients = ings))
+
 
 
 
@@ -1322,7 +1344,6 @@ BoxLayout:
 
         times = [times[ind] for ind in inds]
         pins = [pins[ind] for ind in inds]
-        print (times)
         GPIO.output(self.pressurePin, 1)
         sleep(self.ullagePressTime)
 

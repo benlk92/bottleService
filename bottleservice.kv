@@ -18,6 +18,7 @@
 
 <IngSpinnerOptions@DropDown>:
     max_height: "295dp"
+    dismiss_on_select: True
 
 <MyPopup>:
     id: settttPop
@@ -1070,7 +1071,7 @@ BottleService:
                             size_hint_y: None
                             height: "50dp"                        
                             text: "Pour Exact"
-                            on_press: root.pourExact(manualIngSpinner.text, manualLabelAmt.text)
+                            on_press: root.pourExactConfirm(manualIngSpinner.text, manualLabelAmt.text)
 
                     BoxLayout:
 
