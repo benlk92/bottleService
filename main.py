@@ -1055,8 +1055,10 @@ BoxLayout:
 
                         newRow.brands = [ing.brand for ing in self.ingredientList.values() if ((ing.name == drinkIng) & (ing.location != -1))]
                         if ("" in newRow.brands):
-                            qnewRow.brands.remove("")
-                        newRow.brands.append("-")
+                            newRow.brands.remove("")
+
+                        if (self.ingredientList[drinkIng].location != -1):
+                            newRow.brands.append("-")
                         layout.add_widget(newRow)
                         layout.height = (str(drinkCount * 30 + 35) + "dp")
 
@@ -1065,6 +1067,7 @@ BoxLayout:
                             if hasattr(child, "type"):
                                 if (child.type == "Spinner"):
                                     recipe["Spinner"] = child
+                                    child.text = child.values[-1]
                                 elif (child.type == "Slider"):
                                     recipe["Slider"] = child
                                 elif (child.type == "Toggle"):
