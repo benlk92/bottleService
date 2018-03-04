@@ -951,6 +951,29 @@ Button:
             self.drinkListView._trigger_reset_populate()
 
     def choosePrep(self):
+
+        ingredients = {}
+        for drinkIng in self.drinkManager:
+            if (drinkIng["Spinner"].text != ""):
+                ingredients[drinkIng["Spinner"].text] = {"Amount":float(drinkIng["Label"].text)}
+
+        if (self.drinkName.text.rstrip() == ""):
+            stupidPop = MessagePopup()
+            stupidPop.title = "Name Error"
+            stupidPop.labelText = "This drink has no name :("
+            stupidPop.buttonText = "Okay, it deserves a name."
+            stupidPop.open()
+            return
+
+        elif (len(ingredients) == 0):
+            stupidPop = MessagePopup()
+            stupidPop.title = "Creation Error"
+            stupidPop.labelText = "No ingredients added to this drink."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
+            return
+
+
         prepPop = SpinnerPopup()
         prepPop.title = "Preparation Method"
         prepPop.labelText = "1. How is a " + self.drinkName.text + " prepared?"
@@ -986,23 +1009,6 @@ Button:
         for drinkIng in self.drinkManager:
             if (drinkIng["Spinner"].text != ""):
                 ingredients[drinkIng["Spinner"].text] = {"Amount":float(drinkIng["Label"].text)}
-
-
-        if (self.drinkName.text.rstrip() == ""):
-            stupidPop = MessagePopup()
-            stupidPop.title = "Name Error"
-            stupidPop.labelText = "This drink has no name :("
-            stupidPop.buttonText = "Okay, it deserves a name."
-            stupidPop.open()
-            return
-
-        elif (len(ingredients) == 0):
-            stupidPop = MessagePopup()
-            stupidPop.title = "Creation Error"
-            stupidPop.labelText = "No ingredients added to this drink."
-            stupidPop.buttonText = "Okay"
-            stupidPop.open()
-            return
 
 
 
