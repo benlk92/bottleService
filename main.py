@@ -1000,6 +1000,8 @@ Button:
 
             if (selection in self.genFilteredDrinkList()):
 
+                self.curDrinkManager = []
+
                 for child in [child for child in layout.children]:  
                     if hasattr(child, "type"):
                         if child.type == "IngLayout":
@@ -1080,26 +1082,49 @@ BoxLayout:
 
 
     def howManyDrinks(self, drink):
-        countPop = CountPopup()
-        countPop.open()
 
-        for child in countPop.children[0].children[0].children:
-            if hasattr(child, "textTest"):
-                for child2 in child.children:
-                    if hasattr(child2, "textTest"):
-                        if (child2.textTest == "button"):
-                            child2.bind(on_press = partial(self.calcIngs, drink))
+        if (all([row["Toggle"].active for row in self.curDrinkManager])):
+            stupidPop = MessagePopup()
+            stupidPop.title = "No Ingredients Included Error"
+            stupidPop.labelText = "Nice.  A drink with no ingredients.  Real nice."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
+            return
+
+        else:
+
+            countPop = CountPopup()
+            countPop.open()
+
+            for child in countPop.children[0].children[0].children:
+                if hasattr(child, "textTest"):
+                    for child2 in child.children:
+                        if hasattr(child2, "textTest"):
+                            if (child2.textTest == "button"):
+                                child2.bind(on_press = partial(self.calcIngs, drink))
 
     def howManyShots(self, drink):
-        countPop = CountPopup()
-        countPop.open()
 
-        for child in countPop.children[0].children[0].children:
-            if hasattr(child, "textTest"):
-                for child2 in child.children:
-                    if hasattr(child2, "textTest"):
-                        if (child2.textTest == "button"):
-                            child2.bind(on_press = partial(self.pourShot, drink))
+
+        if (all([row["Toggle"].active for row in self.curDrinkManager])):
+            stupidPop = MessagePopup()
+            stupidPop.title = "No Ingredients Included Error"
+            stupidPop.labelText = "Nice.  A drink with no ingredients.  Real nice."
+            stupidPop.buttonText = "Okay"
+            stupidPop.open()
+            return
+
+        else:
+
+            countPop = CountPopup()
+            countPop.open()
+
+            for child in countPop.children[0].children[0].children:
+                if hasattr(child, "textTest"):
+                    for child2 in child.children:
+                        if hasattr(child2, "textTest"):
+                            if (child2.textTest == "button"):
+                                child2.bind(on_press = partial(self.pourShot, drink))
 
     def calcIngs(self, drink, button):
 
@@ -1110,11 +1135,14 @@ BoxLayout:
             for ing2 in self.curDrinkManager:
                 if (ing2["Ingredient"] == ing):
                     curStrength = ing2["Slider"].value
+                    toExclude = ing2["Toggle"].active
 
-            newIngs[ing] = {"Amount": round((oldIngs[ing]["Amount"] * float(button.count[0]) * (1 + curStrength / 100.)),2)}
-
+            if (not toExclude):
+                newIngs[ing] = {"Amount": round((oldIngs[ing]["Amount"] * float(button.count[0]) * (1 + curStrength / 100.)),2)}
 
         self.pourDrink(Drink("NewDrink", ingredients = newIngs, prepMethod = drink.prepMethod, glassware = drink.glassware))
+
+
 
 
     def pourDrink(self, drink):
@@ -1132,7 +1160,18 @@ BoxLayout:
                 ingMessage = ingMessage + str(drink.ingredients[ing]["Amount"]) + " ounces of " + ing + ",\n"
 
             elif (self.ingredientList[ing].manual == 0):
-                ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * self.timePerOunce, "Pin": self.ingPins[self.ingredientList[ing].location]}
+                for row in self.curDrinkManager:
+                    if ing == row["Ingredient"]:
+                        if (row["Spinner"].text == "-"):
+                            curPin = self.ingPins[self.ingredientList[ing].location]
+                        else:
+                            for ingBrand in self.ingredientList.values():
+                                if (ingBrand.brand == row["Spinner"].text):
+                                    curPin = self.ingPins[ingBrand.location]
+
+                print (curPin)
+
+                ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * self.timePerOunce, "Pin": curPin}
                 if (drink.ingredients[ing]["Amount"] > maxIng):
                     maxIng = drink.ingredients[ing]["Amount"]
 
