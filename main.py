@@ -101,6 +101,9 @@ class ProgressPopup(Popup):
 class OptionPopup(Popup):
     pass
 
+class SpinnerPopup(Popup):
+    pass
+
 class CountPopup(Popup):
     pass
 
@@ -195,6 +198,9 @@ class BottleService(BoxLayout):
     manualIngSpinner = ObjectProperty(None)
     filterSpinner = ObjectProperty(None)
 
+    ingBl = ObjectProperty(None)
+
+
     manualButton = ObjectProperty(None)
     submitButton = ObjectProperty(None)
 
@@ -214,8 +220,8 @@ class BottleService(BoxLayout):
 
     ingCount = -1
 
-    glassName = "Glassware"
-    prepName = "Preparation Method"
+    glassName = "Whatever"
+    prepName = "I don't care"
     unpairedText = "-"
     unselectedText = "-"
 
@@ -690,6 +696,7 @@ class BottleService(BoxLayout):
 
         if ((curField.text.rstrip() not in curList) & (curField.text.rstrip() != "")):
             curList.append(curField.text.rstrip())
+            curList.sort()
 
             # Add the student to the ListView
             curListView.adapter.data.insert(0, curField.text.rstrip())
@@ -800,8 +807,8 @@ class BottleService(BoxLayout):
         self.filterDrinks()
 
 
-        self.glassSpinner.values = self.glassList
-        self.prepSpinner.values = self.prepList
+        # self.glassSpinner.values = self.glassList
+        # self.prepSpinner.values = self.prepList
 
         for item in self.glassList:
             self.glassListView.adapter.data.extend([item])
@@ -826,15 +833,15 @@ class BottleService(BoxLayout):
 
         self.filterSpinner.values = self.filterConstants + self.typeList
 
-        self.glassSpinner.values = self.glassList
-        self.glassSpinner.values.sort()
-        self.glassListView.adapter.data.sort()
-        self.glassSpinner.values.insert(0, self.glassName)
+        # self.glassSpinner.values = self.glassList
+        # self.glassSpinner.values.sort()
+        # self.glassListView.adapter.data.sort()
+        # self.glassSpinner.values.insert(0, self.glassName)
 
-        self.prepSpinner.values = self.prepList
-        self.prepSpinner.values.sort()
-        self.prepListView.adapter.data.sort()
-        self.prepSpinner.values.insert(0, self.prepName)
+        # self.prepSpinner.values = self.prepList
+        # self.prepSpinner.values.sort()
+        # self.prepListView.adapter.data.sort()
+        # self.prepSpinner.values.insert(0, self.prepName)
 
 
     def popIngLabel(self, curListView):
@@ -943,8 +950,37 @@ Button:
             # Reset the ListView
             self.drinkListView._trigger_reset_populate()
 
-    def submitDrink(self, layout):
+    def choosePrep(self):
+        prepPop = SpinnerPopup()
+        prepPop.title = "Preparation Method"
+        prepPop.labelText = "1. How is a " + self.drinkName.text + " prepared?"
+        prepPop.okayButton.bind(on_press = partial(self.chooseGlass, prepPop))
+        prepPop.okayButton.text = "Submit"
+        prepPop.spinnerValues = self.prepList
+        prepPop.optionSpinner.text = self.prepSpinnerText
+        prepPop.open()
 
+
+    def chooseGlass(self, prepPop, button):
+        prepPop.dismiss()
+
+        self.manager.current = "One"
+
+        glassPop = SpinnerPopup()
+        glassPop.title = "Glassware Selection"
+        glassPop.labelText = "2. What is a " + self.drinkName.text + " served in?"
+        glassPop.okayButton.bind(on_press = partial(self.submitDrink, prepPop, glassPop))
+        glassPop.okayButton.text = "Submit"
+        glassPop.spinnerValues = self.glassList
+        glassPop.optionSpinner.text = self.glassSpinnerText
+        glassPop.open()
+
+
+
+
+    def submitDrink(self, prepPop, glassPop, button):
+
+        glassPop.dismiss()
 
         ingredients = {}
         for drinkIng in self.drinkManager:
@@ -974,15 +1010,15 @@ Button:
         if (self.managing == 1):
             self.deleteDrink(None, None)
 
-        if self.prepSpinner.text == self.prepName:
+        if prepPop.optionSpinner.text == self.prepName:
             prepType = ""
         else:
-            prepType = self.prepSpinner.text
+            prepType = prepPop.optionSpinner.text
 
-        if self.glassSpinner.text == self.glassName:
+        if glassPop.optionSpinner.text == self.glassName:
             glassType = ""
         else:
-            glassType = self.glassSpinner.text
+            glassType = glassPop.optionSpinner.text
 
         self.drinkList[self.drinkName.text.rstrip()] = Drink(self.drinkName.text.rstrip(), glassware = glassType, prepMethod = prepType, ingredients = ingredients)
         self.drinkListView.adapter.data.insert(0, self.drinkName.text.rstrip())
@@ -990,10 +1026,10 @@ Button:
         self.drinkListView.adapter.data.sort()
         self.drinkListView._trigger_reset_populate()
 
-        for child in [child for child in layout.children]:  
+        for child in [child for child in self.ingBl.children]:  
             if hasattr(child, "type"):
                 if child.type == "IngLayout":
-                    layout.remove_widget(child)
+                    self.ingBl.remove_widget(child)
 
         self.filterDrinks()
 
@@ -1027,13 +1063,13 @@ Button:
 
             self.drinkName.text = drink.name
             if drink.prepMethod != "":
-                self.prepSpinner.text = drink.prepMethod
+                self.prepSpinnerText = drink.prepMethod
             else:
-                self.prepSpinner.text = self.prepName
+                self.prepSpinnerText = self.prepName
             if drink.glassware != "":
-                self.glassSpinner.text = drink.glassware
+                self.glassSpinnerText = drink.glassware
             else: 
-                self.glassSpinner.text = self.glassName
+                self.glassSpinnerText = self.glassName
 
         else:
             stupidPop = MessagePopup()
@@ -1057,8 +1093,8 @@ Button:
         self.manager.current = "Four"
         self.ingCount = -1
         self.drinkManager = []
-        self.prepSpinner.text = self.prepName
-        self.glassSpinner.text = self.glassName
+        self.prepSpinnerText = self.prepName
+        self.glassSpinnerText = self.glassName
         self.addRow(layout)
 
 
@@ -1619,6 +1655,10 @@ class BottleServiceApp(App):
         BS.glassList = settings[0]["List"]
         BS.typeList = settings[1]["List"]
         BS.prepList = settings[2]["List"]
+
+        BS.glassList.sort()
+        BS.typeList.sort()
+        BS.prepList.sort()
 
         BS.populate()
         BS.popPairIngs()

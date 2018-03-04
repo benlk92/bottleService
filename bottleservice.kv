@@ -109,6 +109,52 @@
                 size_hint_y: None
                 height: '40dp'
 
+
+<SpinnerPopup>:
+    id: spinnerPopup
+    title: ""
+    size_hint: None, None
+    size: 500,200
+    labelText: ""
+    spinnerValues: []
+    okayButton: okayButton
+    optionSpinner: subSpinner
+    BoxLayout:
+        padding: 10
+        orientation: 'vertical'
+
+        BoxLayout:
+            Label:
+                id: subLabel
+                halign: "center"
+                text: root.labelText
+
+            BoxLayout:
+                orientation: "vertical"
+                size_hint_x: None
+                width: '150dp'
+
+                BoxLayout:
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: '40dp'
+                    Spinner:
+                        id:subSpinner
+                        text: "I don't care"
+                        values: root.spinnerValues
+
+                BoxLayout:
+
+        BoxLayout:
+            padding: [50, 0, 50, 0]
+            Button:
+                id:okayButton
+                text: "Okay"
+                size_hint_y: None
+                height: '40dp'
+
+
 <ProgressPopup>:
     id:progressPop 
     title: "Drink Progress"
@@ -331,8 +377,8 @@ BottleService:
     row0: row0
     row1: row1
     row2: row2
-    glassSpinner: glassSpinner
-    prepSpinner: prepSpinner
+    # glassSpinner: glassSpinner
+    # prepSpinner: prepSpinner
     filterSpinner: filterSpinner
 
     strengthInput: strengthInput
@@ -345,6 +391,8 @@ BottleService:
 
     manualButton: manualButton
     submitButton: submitButton
+
+    ingBl: ingBl
 
     manualIngSpinner: manualIngSpinner
 
@@ -537,54 +585,27 @@ BottleService:
                 BoxLayout:
                     size_hint_y: None
                     height: "40dp"
-                    padding: [20,0,20,0]
-                    spacing: 10
+                    padding: [30,0,30,0]
+                    spacing: 30
              
                     Label:
                         text: "Name"
+                        font_size: 24
+
                         size_hint_x: None
                         width: "30dp"
                     TextInput:
                         font_size: 24
                         id: drinkName
                         multiline: False         
-                        write_tab: False                     
+                        write_tab: False 
 
-
-                    BoxLayout:
-                        orientation: 'vertical'
-                        size_hint_x: None
-                        width: "160dp"
-                        Spinner:
-                            id: prepSpinner
-                            text: "Preparation Method"
-
-                    BoxLayout:
-                        orientation: 'vertical'
-                        size_hint_x: None
-                        width: "160dp"
-                        Spinner:
-                            id: glassSpinner
-                            text: "Glassware"
-
-                BoxLayout:
-                    size_hint_y: None
-                    height: "40dp"
-                    padding: [20,0,20,0]
-                    spacing: 10
-                    Button:
-                        text: "Add Ingredient"
-                        on_press: root.addRow(ingBl)
                     Button:
                         text: "Submit"
-                        on_press: root.submitDrink(ingBl)
+                        on_press: root.choosePrep()
                         font_size: 26  
                         size_hint_x: None
-                        width: "350dp" 
-
-                    Button:
-                        text: "Remove Last Ingredient"
-                        on_press: root.removeRow(ingBl)
+                        width: "200dp"                     
 
                 BoxLayout:
                     size_hint_y: None
@@ -603,6 +624,20 @@ BottleService:
                     size_hint_y: None
                     height: "20dp"
                     orientation: "vertical"
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "30dp"
+                    padding: [200,0,200,0]
+                    spacing: 20
+                    Button:
+                        text: "Add Ingredient"
+                        on_press: root.addRow(ingBl)
+
+
+                    Button:
+                        text: "Remove Ingredient"
+                        on_press: root.removeRow(ingBl)
 
                 BoxLayout:
 
