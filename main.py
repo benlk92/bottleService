@@ -200,6 +200,7 @@ class BottleService(BoxLayout):
 
     ingBl = ObjectProperty(None)
 
+    mainFilter = ObjectProperty(None)
 
     manualButton = ObjectProperty(None)
     submitButton = ObjectProperty(None)
@@ -342,19 +343,31 @@ class BottleService(BoxLayout):
 
         self.avaDrinkListView._trigger_reset_populate()
 
+        liquorList = []
+        for ing in self.ingredientList.values():
+            if ((ing.manual == 0) & (ing.location != -1)):
+                liquorList.append(ing.name)
+
+        self.mainFilter.values = list(set(liquorList))
+
 
     def genFilteredDrinkList(self):
         
         filteredDrinks = []
         for drink in self.drinkList.keys():
             filtered = 1
+
+
             for ing in self.drinkList[drink].ingredients.keys():
                 if ((self.ingredientList[ing].manual == 1)):
                     if ((self.ingredientList[ing].inStock == 0) and (self.displayToggle.active)):
                         filtered = 0
+
                 else:
                     ingLocList = [ingCheck.location for ingCheck in self.ingredientList.values() if ingCheck.name.lower() == ing.lower()]
                     if (not any([test for test in ingLocList if test > 0])):
+                        
+
                         filtered = 0
             if (filtered == 1):
                 filteredDrinks.append(drink)
@@ -823,7 +836,17 @@ class BottleService(BoxLayout):
         self.prepListView.adapter.data.sort()
         self.typeListView.adapter.data.sort()
 
+        liquorList = []
+        for ing in self.ingredientList.values():
+            if ((ing.manual == 0) & (ing.location != -1)):
+                liquorList.append(ing.name)
+
+        self.mainFilter.values = list(set(liquorList))
+
+
         self.typeList.sort()
+
+        self.popPairIngs()
 
 
     def updateLists(self):
@@ -1667,7 +1690,6 @@ class BottleServiceApp(App):
         BS.prepList.sort()
 
         BS.populate()
-        BS.popPairIngs()
 
         self.BS = BS
 
