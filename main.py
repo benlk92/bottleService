@@ -349,6 +349,10 @@ class BottleService(BoxLayout):
                 liquorList.append(ing.name)
 
         self.mainFilter.values = list(set(liquorList))
+        self.mainFilter.values.sort()
+        self.mainFilter.values.insert(0,"No Filter")
+
+
 
 
     def genFilteredDrinkList(self):
@@ -365,10 +369,14 @@ class BottleService(BoxLayout):
 
                 else:
                     ingLocList = [ingCheck.location for ingCheck in self.ingredientList.values() if ingCheck.name.lower() == ing.lower()]
-                    if (not any([test for test in ingLocList if test > 0])):
-                        
-
+                    if (not any([True for test in ingLocList if test >= 0])):
                         filtered = 0
+
+
+            if ((self.mainFilter.text not in self.drinkList[drink].ingredients.keys()) & (self.mainFilter.text != "No Filter")):
+                filtered = 0
+
+
             if (filtered == 1):
                 filteredDrinks.append(drink)
         return filteredDrinks
@@ -842,6 +850,11 @@ class BottleService(BoxLayout):
                 liquorList.append(ing.name)
 
         self.mainFilter.values = list(set(liquorList))
+        self.mainFilter.values.sort()
+        self.mainFilter.values.insert(0,"No Filter")
+
+
+
 
 
         self.typeList.sort()
