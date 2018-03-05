@@ -69,13 +69,17 @@
     size_hint: None, None
     size: 400,200
     labelText: ""
+    messageLabel: messageLabel
     buttonText: "Dismiss"
     BoxLayout:
         orientation: 'vertical'
         Label:
+            id: messageLabel
             halign: "center"
             text: root.labelText
         Button:
+            size_hint_y: None
+            height: "60dp"
             text: root.buttonText
             on_press: root.dismiss()
 
@@ -681,6 +685,7 @@ BottleService:
                         height: "40dp"                        
                         font_size: 30
                         text: drinkTitle.labelName
+                        on_press: root.showRecipe()
 
                     Button:
                         id: shotTitle

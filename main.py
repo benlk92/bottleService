@@ -1410,13 +1410,31 @@ BoxLayout:
             stupidPop.buttonText = "Okay"
             stupidPop.open()
 
-
-
     def pourExact(self, confirmPop, ings, button):
         confirmPop.dismiss()
         self.pourDrink(Drink("ExactDrink", ingredients = ings))
 
 
+    def showRecipe(self):
+
+        if (self.drinkTitle.labelName[0].lower() in 'aeiou'):
+            recipeText = "An " + self.drinkTitle.labelName + " is:\n\n"
+
+        else:
+            recipeText = "A " + self.drinkTitle.labelName + " is:\n\n"
+        curDrink = self.drinkTitle.drink
+
+        for ing in curDrink.ingredients.keys():
+            line = ("%.2f ounces of %s\n" % (curDrink.ingredients[ing]["Amount"], ing))
+            recipeText = recipeText + line
+
+        stupidPop = MessagePopup()
+        stupidPop.size = (400, (180 + 20 * len(curDrink.ingredients)))
+        stupidPop.messageLabel.halign = 'left'
+        stupidPop.title = self.drinkTitle.labelName + " Recipe"
+        stupidPop.labelText = recipeText
+        stupidPop.buttonText = "Okay"
+        stupidPop.open()
 
 
 
