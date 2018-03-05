@@ -475,6 +475,7 @@ BottleService:
                     Button:
                         text: "Manual Pours"
                         on_press: manager.current = "Nine"
+                        on_press: root.curDrinkManager = []
                     Button:
                         text: "Bartender's Choice"
                         on_press: root.bartendersChoice(makeBl)
