@@ -247,7 +247,6 @@
             id: countButton
             textTest: "button"
             text: "Pour Drinks!"
-            on_press: countPop.dismiss()
             count: drinkCount.text
 
 
@@ -566,7 +565,7 @@ BottleService:
                         on_press: root.openEditIngPopup()
                     Button:
                         text: "Delete Ingredient"
-                        on_press: root.deleteIngredient()
+                        on_press: root.deleteIngredientConfirm()
                     Spinner:
                         id: filterSpinner
                         text: "No Filter"

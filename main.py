@@ -22,7 +22,7 @@ Config.set("graphics", "height", "480")
 
 # Class to represent all ingredients in bottle service
 class Ingredient(object):
-    def __init__(self, name, brand = "", location = -1, ingType = "", manual = 0, inStock = 0):
+    def __init__(self, name, brand = "", location = -1, ingType = "", manual = 0, inStock = 0, calibration = -1):
         self.name = name
         self.brand = brand
         self.location = location
@@ -33,6 +33,7 @@ class Ingredient(object):
         self.manual = manual
         self.spacer = ""
         self.newLine = ""
+        self.calibration = calibration
 
         self.setDisplay()
 
@@ -142,24 +143,24 @@ class BottleService(BoxLayout):
 
 
     ingPins = {
-    0: 10,
-    1: 18,
-    2: 9,
-    3: 23,
-    4: 11,
-    5: 24,
-    6: 5,
-    7: 25,
-    8: 6,
-    9: 8,
-    10: 13,
-    11: 7,
-    12: 19,
-    13: 12,
+    0: {'GPIO': 10, 'Calibration': 3},
+    1: {'GPIO': 18, 'Calibration': 3},
+    2: {'GPIO': 9, 'Calibration': 3},
+    3: {'GPIO': 23, 'Calibration': 3},
+    4: {'GPIO': 11, 'Calibration': 3},
+    5: {'GPIO': 24, 'Calibration': 3},
+    6: {'GPIO': 5, 'Calibration': 3},
+    7: {'GPIO': 25, 'Calibration': 3},
+    8: {'GPIO': 6, 'Calibration': 3},
+    9: {'GPIO': 8, 'Calibration': 3},
+    10: {'GPIO': 13, 'Calibration': 3},
+    11: {'GPIO': 7, 'Calibration': 3},
+    12: {'GPIO': 19, 'Calibration': 3},
+    13: {'GPIO': 12, 'Calibration': 3}
     }
 
     for pin in ingPins.values():
-        GPIO.setup(pin, GPIO.OUT, initial=0)
+        GPIO.setup(pin['GPIO'], GPIO.OUT, initial=0)
 
     row0 = ObjectProperty(None)
     row1 = ObjectProperty(None)
@@ -280,8 +281,6 @@ class BottleService(BoxLayout):
     def filterManIngSpinnerList(self):
         self.manualIngSpinner.values  = [ing.displayNorm for ing in self.ingredientList.values() if ing.location != -1]
         self.manualIngSpinner.values.sort()
-
-
 
 
     def setCurButton(self, button):
@@ -438,7 +437,7 @@ class BottleService(BoxLayout):
 
     def openNewIngPopup(self):
         newIngPopup = self.genIngPopup()
-        newIngPopup.submitButton.bind(on_press = self.addNewIngredient)
+        newIngPopup.submitButton.bind(on_press = partial(self.addNewIngredient, newIngPopup))
         newIngPopup.open()
 
 
@@ -487,14 +486,15 @@ class BottleService(BoxLayout):
         if self.manualToggle.active:
             newIng.manual = 1
 
+
         if ((newIng.name == "") and (newIng.brand == "")):
 
             stupidPop = MessagePopup()
             stupidPop.title = "Low Functioning Individual Error"
-            stupidPop.labelText = "You can't add nothing.  Idiot."
-            stupidPop.buttonText = "Okay"
+            stupidPop.labelText = "Ingredient names are kinda required"
+            stupidPop.buttonText = "Okay, Mom"
             stupidPop.open()
-            return
+            return -1
 
         if ((newIng.name == "") and (newIng.brand != "")):
             stupidPop = MessagePopup()
@@ -502,7 +502,7 @@ class BottleService(BoxLayout):
             stupidPop.labelText = "Does it really seem like a good \nidea to add just a brand?"
             stupidPop.buttonText = "No.  No it doesn't."
             stupidPop.open()
-            return
+            return -1
 
         # If there is no selection, just check if what"s trying to be added is already in the list
         if not self.ingListView.adapter.selection:
@@ -522,17 +522,18 @@ class BottleService(BoxLayout):
 
 
 
-    def addNewIngredient(self, submitButton):
+    def addNewIngredient(self, ingPopup, submitButton):
 
         newIng = self.confirmIngredient()
 
-        listName = newIng.displayNorm
+        if (newIng != -1):
+            listName = newIng.displayNorm
 
-        self.ingredientList[listName] = newIng
+            self.ingredientList[listName] = newIng
 
-        self.ingListView.adapter.data.insert(0, listName)
+            self.ingListView.adapter.data.insert(0, listName)
 
-        self.ingListCleanup()
+            self.ingListCleanup()
 
 
 
@@ -540,25 +541,27 @@ class BottleService(BoxLayout):
 
         newIng = self.confirmIngredient()
 
-        listName = newIng.displayNorm
+        if (newIng != -1):
+            listName = newIng.displayNorm
 
 
-        if (listName not in self.ingredientList.keys()):
-            self.substituteIngredient(listName)
-            self.deleteIngredient()
-            self.ingredientList[listName] = newIng
+            if (listName not in self.ingredientList.keys()):
+                self.substituteIngredient(listName)
+                self.deleteIngredient()
+                self.ingredientList[listName] = newIng
 
-        else:
-            self.ingListView.adapter.data.remove(listName)
-            oldIng = self.ingredientList[listName]
-            oldIng.manual = newIng.manual
-            oldIng.inStock = newIng.inStock
-            oldIng.ingType = newIng.ingType
+            else:
+                self.ingListView.adapter.data.remove(listName)
+                oldIng = self.ingredientList[listName]
+                oldIng.manual = newIng.manual
+                oldIng.inStock = newIng.inStock
+                oldIng.ingType = newIng.ingType
+                oldIng.calibration = newIng.calibration
 
-        self.filterDrinks()
+            self.filterDrinks()
 
-        # Add the student to the ListView
-        self.ingListView.adapter.data.insert(0, listName)
+            # Add the student to the ListView
+            self.ingListView.adapter.data.insert(0, listName)
 
 
     def ingListCleanup(self):
@@ -571,7 +574,7 @@ class BottleService(BoxLayout):
         self.filterDrinks()
         self.ingListView._trigger_reset_populate()
  
-    def deleteIngredient(self, *args):
+    def deleteIngredientConfirm(self, *args):
  
         # If a list item is selected
         if self.ingListView.adapter.selection:
@@ -587,12 +590,13 @@ class BottleService(BoxLayout):
                     delIngPop.buttonText = "Okay"
                     delIngPop.open()
                     return
-     
-            self.ingListView.adapter.data.remove(selection)
 
-            if selection in self.ingredientList.keys(): del self.ingredientList[selection]
- 
-            self.ingListView._trigger_reset_populate()
+            confirmPop = OptionPopup()
+            confirmPop.title = "Deletion Confirmation"
+            confirmPop.labelText = "Deleting %s will obliterate \nit from your entire library." % (selection)
+            confirmPop.okayButton.bind(on_press = partial(self.deleteIngredient, selection, confirmPop))
+            confirmPop.okayButton.text = "Delete"
+            confirmPop.open()
 
         else:
             delIngPop = MessagePopup()
@@ -601,6 +605,18 @@ class BottleService(BoxLayout):
             delIngPop.buttonText = "Wow"
             delIngPop.open()
             return
+
+
+    def deleteIngredient(self, selection, confirmPop, okayButton):
+
+        confirmPop.dismiss()
+
+        self.ingListView.adapter.data.remove(selection)
+
+        if selection in self.ingredientList.keys(): del self.ingredientList[selection]
+
+        self.ingListView._trigger_reset_populate()
+
 
     def substituteIngredient(self, listName):
 
@@ -1324,13 +1340,13 @@ BoxLayout:
                     for row in self.curDrinkManager:
                         if ing == row["Ingredient"]:
                             if (row["Spinner"].text == "-"):
-                                curPin = self.ingPins[self.ingredientList[ing].location]
+                                curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
                             else:
                                 for ingBrand in self.ingredientList.values():
                                     if (ingBrand.brand == row["Spinner"].text):
-                                        curPin = self.ingPins[ingBrand.location]
+                                        curPin = self.ingPins[ingBrand.location]['GPIO']
                 else:
-                    curPin = self.ingPins[self.ingredientList[ing].location]
+                    curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
 
                 ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * self.timePerOunce, "Pin": curPin}
                 if (drink.ingredients[ing]["Amount"] > maxIng):
@@ -1619,7 +1635,7 @@ BoxLayout:
 
     def pourManuallyStart(self, ingName):
         if (ingName != self.unselectedText):
-            ingPin = self.ingPins[self.ingredientList[ingName].location]
+            ingPin = self.ingPins[self.ingredientList[ingName].location]['GPIO']
             GPIO.output(self.pressurePin, 1)
             GPIO.output(ingPin, 1)
 
@@ -1632,7 +1648,7 @@ BoxLayout:
 
     def pourManuallyStop(self, ingName):
         if (ingName != self.unselectedText):
-            ingPin = self.ingPins[self.ingredientList[ingName].location]
+            ingPin = self.ingPins[self.ingredientList[ingName].location]['GPIO']
             GPIO.output(self.pressurePin, 0)
             GPIO.output(ingPin, 0)
 
@@ -1663,7 +1679,7 @@ class BottleServiceApp(App):
         with open(ingredientFile) as f:
             reader = csv.reader(f)
             for ing in reader:
-                newIng = Ingredient(ing[0], brand = ing[1], location = int(ing[2]), ingType = ing[3], manual = int(ing[4]), inStock = int(ing[5]))
+                newIng = Ingredient(ing[0], brand = ing[1], location = int(ing[2]), ingType = ing[3], manual = int(ing[4]), inStock = int(ing[5]), calibration = int(ing[6]))
                 ingredientList[newIng.displayNorm] = newIng 
 
         drinkFile = "drinks.csv"
@@ -1730,7 +1746,7 @@ class BottleServiceApp(App):
         with open(self.ingredientFile, "w") as f:
             writer = csv.writer(f, delimiter = ",")
             for ing in self.BS.ingredientList.values():
-                writer.writerow([ing.name, ing.brand, str(ing.location), ing.ingType, ing.manual, ing.inStock])
+                writer.writerow([ing.name, ing.brand, str(ing.location), ing.ingType, ing.manual, ing.inStock, ing.calibration])
 
         with open(self.drinkFile, "w") as f:
             writer = csv.writer(f, delimiter=",")
