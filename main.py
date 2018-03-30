@@ -257,6 +257,8 @@ class BottleService(BoxLayout):
 
     def pairPopup(self, text):
 
+        self.ingPopup.dismiss()
+
         if ((self.currentButton != None) & (self.justDisplay == 0)):
 
             if text != self.unpairedText:
@@ -268,15 +270,34 @@ class BottleService(BoxLayout):
                 self.currentButton.ing = ing
                 ing.location = self.currentButton.ind
 
+                ing.calibration = self.ingPins[self.currentButton.ind]['Calibration']
+
+                calPop = OptionPopup()
+                calPop.title = "Calibration Specification"
+                calPop.labelText = ("Use standard calibration or\n calibrate %s manually?" % text)
+                calPop.okayButton.bind(on_press = partial(self.calibrateManually, calPop, ing))
+                calPop.okayButton.text = "Calibrate Manally!"
+                calPop.cancelButton.text = "Use Default Calibration"
+                calPop.open()
+
+                print(ing.calibration)
+
             else:
                 if (self.currentButton.ing != None):
                     oldIng = self.currentButton.ing
                     oldIng.location = -1
                 self.currentButton.ing = Ingredient(self.unpairedText)
-            self.ingPopup.dismiss()
 
         self.filterDrinks()
         self.filterManIngSpinnerList()
+
+
+    def calibrateManually(self, calPop, ing, okayButton):
+        calPop.dismiss()
+        self.filterDrinks()
+        self.filterManIngSpinnerList()
+        print ("Calibrate Manually")
+
 
     def filterManIngSpinnerList(self):
         self.manualIngSpinner.values  = [ing.displayNorm for ing in self.ingredientList.values() if ing.location != -1]
