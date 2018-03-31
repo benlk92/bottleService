@@ -276,18 +276,19 @@ class BottleService(BoxLayout):
                 if (self.currentButton.ing != None):
                     oldIng = self.currentButton.ing
                     oldIng.location = -1
+                    oldIng.calibration = -1
 
                 self.currentButton.ing = ing
                 ing.location = self.currentButton.ind
 
-                ing.calibration = self.ingPins[self.currentButton.ind]['Calibration']
+                ing.calibration = -1
 
                 calPop = OptionPopup()
                 calPop.title = "Prime the lines"
-                calPop.labelText = ("Press and hold the Prime button\n to prime %s" % text)
+                calPop.labelText = ("Press and hold the Prime button\n until %s is dispensed" % text)
                 calPop.okayButton.bind(on_press = partial(self.pourManuallyStart, ing.displayNorm))
                 calPop.okayButton.bind(on_release = partial(self.pourManuallyStop, ing.displayNorm))
-                calPop.okayButton.text = "Prime Lines"
+                calPop.okayButton.text = "Prime"
                 calPop.cancelButton.text = "Continue"
                 calPop.cancelButton.bind(on_press = partial(self.calibrateConfirm, calPop, ing))
                 calPop.open()
@@ -296,6 +297,7 @@ class BottleService(BoxLayout):
                 if (self.currentButton.ing != None):
                     oldIng = self.currentButton.ing
                     oldIng.location = -1
+                    oldIng.calibration = -1
                 self.currentButton.ing = Ingredient(self.unpairedText)
 
         self.filterDrinks()
@@ -304,10 +306,10 @@ class BottleService(BoxLayout):
     def calibrateConfirm(self, calPop, ing, okayButton):
         calPop = OptionPopup()
         calPop.title = "Calibration Specification"
-        calPop.labelText = ("Use standard calibration or\n calibrate %s manually?" % ing.displayNorm)
+        calPop.labelText = ("Use default calibration or\n calibrate %s manually?" % ing.displayNorm)
         calPop.okayButton.bind(on_press = partial(self.calibrationPrep, calPop, ing))
         calPop.okayButton.text = "Calibrate Manally"
-        calPop.cancelButton.text = "Use Default Calibration"
+        calPop.cancelButton.text = "Default Calibration"
         calPop.open()
 
 
@@ -327,15 +329,12 @@ class BottleService(BoxLayout):
         self.pourTime = 0
         calPop = TripleOptionPopup()
         calPop.title = "Calibration"
-        if (float(ounceCount) == 1.0):
-            calPop.labelText = ("Press and hold the Calibrate button\n until exactly %s ounce is poured\n\n %.2f seconds to pour %s ounce of %s" % (ounceCount, self.pourTime, ounceCount, ing.displayNorm))
-        else:
-            calPop.labelText = ("Press and hold the Calibrate button\n until exactly %s ounces are poured\n\n %.2f seconds to pour %s ounces of %s" % (ounceCount, self.pourTime, ounceCount, ing.displayNorm))
+        self.updateLabel(calPop, ounceCount, ing, None)
 
+        calPop.option1.text = "Calibrate"
         calPop.option1.bind(on_press = partial(self.pourManuallyStart, ing.displayNorm))
         calPop.option1.bind(on_release = partial(self.updateLabel, calPop, ounceCount, ing))
         calPop.option1.bind(on_release = partial(self.pourManuallyStop, ing.displayNorm))
-        calPop.option1.text = "Calibrate"
         calPop.option2.text = "Done"
         calPop.option2.bind(on_release = partial(self.calculateCalibration, ounceCount, ing, calPop))
         calPop.option3.text = "Reset"
@@ -1395,7 +1394,7 @@ BoxLayout:
                     toExclude = ing2["Toggle"].active
 
             if (not toExclude):
-                newIngs[ing] = {"Amount": round((oldIngs[ing]["Amount"] * float(button.count[0]) * (1 + curStrength / 100.)),2)}
+                newIngs[ing] = {"Amount": round((oldIngs[ing]["Amount"] * float(button.count[0]) * (1 + curStrength / 100.)),3)}
 
         self.pourDrink(Drink("NewDrink", ingredients = newIngs, prepMethod = drink.prepMethod, glassware = drink.glassware))
 
@@ -1421,18 +1420,26 @@ BoxLayout:
                     for row in self.curDrinkManager:
                         if ing == row["Ingredient"]:
                             if (row["Spinner"].text == "-"):
-                                curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
+                                curIng = self.ingredientList[ing]
+                                curLocation = self.ingPins[curIng.location]
+                                curPin = curLocation['GPIO']
                             else:
                                 for ingBrand in self.ingredientList.values():
-                                    if (ingBrand.brand == row["Spinner"].text):
-                                        curPin = self.ingPins[ingBrand.location]['GPIO']
+                                    if ((ingBrand.brand == row["Spinner"].text) & (ingBrand.name == ing)):
+                                        curIng = ingBrand
+                                        curLocation = self.ingPins[ingBrand.location]
+                                        curPin = curLocation['GPIO']
                 else:
                     curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
 
-                ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * self.timePerOunce, "Pin": curPin}
+                if (curIng.calibration == -1):
+                    ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curLocation["Calibration"], "Pin": curPin}
+                else:
+                    ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curIng.calibration, "Pin": curPin}
+
+
                 if (drink.ingredients[ing]["Amount"] > maxIng):
                     maxIng = drink.ingredients[ing]["Amount"]
-
 
         ingMessage = ingMessage[:-2]
         ingMessage = ingMessage + "\n"
