@@ -102,6 +102,9 @@ class ProgressPopup(Popup):
 class OptionPopup(Popup):
     pass
 
+class TripleOptionPopup(Popup):
+    pass
+
 class SpinnerPopup(Popup):
     pass
 
@@ -109,6 +112,9 @@ class CountPopup(Popup):
     pass
 
 class NewIngPopup(Popup):
+    pass
+
+class CalibrationPrepPopup(Popup):
     pass
 
 class Manager(ScreenManager):
@@ -255,6 +261,10 @@ class BottleService(BoxLayout):
 
     bartenderChoosing = 0
 
+    pourTime = 0
+    startTime = 0
+    endTime = 0
+
     def pairPopup(self, text):
 
         self.ingPopup.dismiss()
@@ -273,14 +283,14 @@ class BottleService(BoxLayout):
                 ing.calibration = self.ingPins[self.currentButton.ind]['Calibration']
 
                 calPop = OptionPopup()
-                calPop.title = "Calibration Specification"
-                calPop.labelText = ("Use standard calibration or\n calibrate %s manually?" % text)
-                calPop.okayButton.bind(on_press = partial(self.calibrateManually, calPop, ing))
-                calPop.okayButton.text = "Calibrate Manally!"
-                calPop.cancelButton.text = "Use Default Calibration"
+                calPop.title = "Prime the lines"
+                calPop.labelText = ("Press and hold the Prime button\n to prime %s" % text)
+                calPop.okayButton.bind(on_press = partial(self.pourManuallyStart, ing.displayNorm))
+                calPop.okayButton.bind(on_release = partial(self.pourManuallyStop, ing.displayNorm))
+                calPop.okayButton.text = "Prime Lines"
+                calPop.cancelButton.text = "Continue"
+                calPop.cancelButton.bind(on_press = partial(self.calibrateConfirm, calPop, ing))
                 calPop.open()
-
-                print(ing.calibration)
 
             else:
                 if (self.currentButton.ing != None):
@@ -291,13 +301,63 @@ class BottleService(BoxLayout):
         self.filterDrinks()
         self.filterManIngSpinnerList()
 
+    def calibrateConfirm(self, calPop, ing, okayButton):
+        calPop = OptionPopup()
+        calPop.title = "Calibration Specification"
+        calPop.labelText = ("Use standard calibration or\n calibrate %s manually?" % ing.displayNorm)
+        calPop.okayButton.bind(on_press = partial(self.calibrationPrep, calPop, ing))
+        calPop.okayButton.text = "Calibrate Manally"
+        calPop.cancelButton.text = "Use Default Calibration"
+        calPop.open()
+
+
+    def calibrationPrep(self, calPop, ing, okayButton):
+
+        calPop.dismiss()
+
+        calPop = CalibrationPrepPopup()
+        calPop.open()
+        calPop.submitButton.bind(on_release = partial(self.calibrateManually, calPop, ing))
+
 
     def calibrateManually(self, calPop, ing, okayButton):
-        calPop.dismiss()
-        self.filterDrinks()
-        self.filterManIngSpinnerList()
-        print ("Calibrate Manually")
 
+        ounceCount = calPop.ounceCount
+        calPop.dismiss()
+        self.pourTime = 0
+        calPop = TripleOptionPopup()
+        calPop.title = "Calibration"
+        if (float(ounceCount) == 1.0):
+            calPop.labelText = ("Press and hold the Calibrate button\n until exactly %s ounce is poured\n\n %.2f seconds to pour %s ounce of %s" % (ounceCount, self.pourTime, ounceCount, ing.displayNorm))
+        else:
+            calPop.labelText = ("Press and hold the Calibrate button\n until exactly %s ounces are poured\n\n %.2f seconds to pour %s ounces of %s" % (ounceCount, self.pourTime, ounceCount, ing.displayNorm))
+
+        calPop.option1.bind(on_press = partial(self.pourManuallyStart, ing.displayNorm))
+        calPop.option1.bind(on_release = partial(self.updateLabel, calPop, ounceCount, ing))
+        calPop.option1.bind(on_release = partial(self.pourManuallyStop, ing.displayNorm))
+        calPop.option1.text = "Calibrate"
+        calPop.option2.text = "Done"
+        calPop.option2.bind(on_release = partial(self.calculateCalibration, ounceCount, ing, calPop))
+        calPop.option3.text = "Reset"
+        calPop.option3.bind(on_release = partial(self.resetCalibration, calPop, ounceCount, ing))
+        calPop.open()
+
+    def updateLabel(self, calPop, ounceCount, ing, okayButton):
+
+        if (float(ounceCount) == 1.0):
+            calPop.labelText = ("Press and hold the Calibrate button\n until exactly %s ounce is poured\n\n %.2f seconds to pour %s ounce of %s" % (ounceCount, self.pourTime, ounceCount, ing.displayNorm))
+        else:
+            calPop.labelText = ("Press and hold the Calibrate button\n until exactly %s ounces are poured\n\n %.2f seconds to pour %s ounces of %s" % (ounceCount, self.pourTime, ounceCount, ing.displayNorm))
+
+    def resetCalibration(self, calPop, ounceCount, ing, okayButton):
+
+        self.pourTime = 0
+
+        self.updateLabel(calPop, ounceCount, ing, okayButton)
+
+    def calculateCalibration(self, ounceCount, ing, calPop, cancelButton):
+        calPop.dismiss()
+        ing.calibration = self.pourTime / float(ounceCount)
 
     def filterManIngSpinnerList(self):
         self.manualIngSpinner.values  = [ing.displayNorm for ing in self.ingredientList.values() if ing.location != -1]
@@ -1641,20 +1701,9 @@ BoxLayout:
         self.bartenderChoosing = 1
         self.makeDrink(layout)
 
+    def pourManuallyStart(self, ingName, pourButton):
+        self.startTime = time()
 
-
-    # def pourManuallyStart(self, ingName):
-    #     if (ingName != self.unselectedText):
-    #         t = threading.Thread(target=self.pouring, args = [ingName])
-    #         t.start()
-    #     else:
-    #         stupidPop = MessagePopup()
-    #         stupidPop.title = "Selection Error"
-    #         stupidPop.labelText = "No ingredient selected."
-    #         stupidPop.buttonText = "Okay"
-    #         stupidPop.open()
-
-    def pourManuallyStart(self, ingName):
         if (ingName != self.unselectedText):
             ingPin = self.ingPins[self.ingredientList[ingName].location]['GPIO']
             GPIO.output(self.pressurePin, 1)
@@ -1667,11 +1716,28 @@ BoxLayout:
             stupidPop.buttonText = "Okay"
             stupidPop.open()
 
-    def pourManuallyStop(self, ingName):
+    def pourManuallyStop(self, ingName, pourButton):
+        self.endTime = time()
         if (ingName != self.unselectedText):
             ingPin = self.ingPins[self.ingredientList[ingName].location]['GPIO']
             GPIO.output(self.pressurePin, 0)
             GPIO.output(ingPin, 0)
+
+        self.pourTime = self.pourTime + (self.endTime - self.startTime)
+
+
+
+    # def pourManuallyTimer(self):
+    #     self.pourTime = 0
+
+    #     while True:
+
+    #         if (self.pouringManually == 1):
+    #             sleep(self.timerIncrement)
+    #             self.pourTime = self.pourTime + self.timerIncrement
+    #         elif (self.pouringManually == 0):
+    #             print(self.pourTime)
+    #             return
 
 
 

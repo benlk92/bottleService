@@ -113,6 +113,41 @@
                 size_hint_y: None
                 height: '40dp'
 
+<TripleOptionPopup>:
+    id: optionPopup
+    title: ""
+    size_hint: None, None
+    size: 500,200
+    labelText: ""
+    option1: option1
+    option2: option2
+    option3: option3
+    BoxLayout:
+        padding: 10
+        orientation: 'vertical'
+        Label:
+            id: subLabel
+            halign: "center"
+            text: root.labelText
+        BoxLayout:
+            spacing: 10
+
+            Button:
+                id:option1
+                text: "Option 1"
+                size_hint_y: None
+                height: '40dp'
+            Button:
+                id:option2
+                text: "Option 2"
+                size_hint_y: None
+                height: '40dp'
+            Button:
+                id:option3
+                text: "Option3"
+                size_hint_y: None
+                height: '40dp'
+
 
 <SpinnerPopup>:
     id: spinnerPopup
@@ -350,8 +385,73 @@
 
 
 
+<CalibrationPrepPopup>:
+    id:calibrationPrepPopup 
+    title: "Calibrate Ingredient"
+    size_hint: None, None
+    size: 400,200
+    submitButton: submitButton
+    ounceCount: ounceCount.text
+
+    BoxLayout:
+        orientation: 'vertical'
+        spacing: 10
+        padding: 10
 
 
+
+        Label:
+            text: "Ounces to Calibrate"
+
+        BoxLayout:
+            Button:
+                background_color: (0,0,0,0)
+                background_normal: ''
+                on_press: 
+                    if float(ounceCount.text) == 1: ounceCount.text = (str(float(ounceCount.text) - .25))
+                    elif float(ounceCount.text) > .5: ounceCount.text = (str(float(ounceCount.text) - .25))
+
+
+
+                Image:
+                    source: 'data/icons/minus.png'
+                    y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                    x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                    size_hint_y: None
+                    size_hint_x: None
+                    height: 20
+                    width: 20
+
+            Label:
+                id: ounceCount
+                size_hint_x: None
+                width: "40dp"
+                halign: "center"
+                text: ".5"
+
+            Button:
+                background_color: (0,0,0,0)
+                background_normal: ''
+                on_press: 
+                on_press: 
+                    if float(ounceCount.text) == 1: ounceCount.text = (str(float(ounceCount.text) + .25))
+                    elif float(ounceCount.text) < 2.0: ounceCount.text = (str(float(ounceCount.text) + .25))
+
+                Image:
+                    source: 'data/icons/plus2.png'
+                    y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                    x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                    size_hint_y: None
+                    size_hint_x: None
+                    height: 20
+                    width: 20
+
+        Button:
+            size_hint_y: None
+            height: "40dp"
+            id: submitButton
+            text: "Contiue to Calibration"
+            on_press: root.dismiss()
 
 BottleService:
 
@@ -1132,8 +1232,8 @@ BottleService:
                             size_hint_y: None
                             height: "50dp"
                             text: "Pour Manual"
-                            on_press: root.pourManuallyStart(manualIngSpinner.text)
-                            on_release: root.pourManuallyStop(manualIngSpinner.text)
+                            on_press: root.pourManuallyStart(manualIngSpinner.text, None)
+                            on_release: root.pourManuallyStop(manualIngSpinner.text, None)
                     BoxLayout:
 
                 BoxLayout:
