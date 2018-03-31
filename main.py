@@ -140,7 +140,6 @@ class BottleService(BoxLayout):
 
     pressurePin = 26
 
-    timePerOunce = 3 # second per ounce
     ullagePressTime = 1.
 
 
@@ -239,7 +238,6 @@ class BottleService(BoxLayout):
     robotName = ObjectProperty(None)
     maxAmtInput = ObjectProperty(None)
     shotInput = ObjectProperty(None)
-    calibrationInput = ObjectProperty(None)
     displayToggle = ObjectProperty(None)
 
     ounceSetting = 0
@@ -620,23 +618,25 @@ class BottleService(BoxLayout):
     def editIngredient(self, submitButton):
 
         newIng = self.confirmIngredient()
+        selection = self.ingListView.adapter.selection[0].text
+        oldIng = self.ingredientList[selection]
 
         if (newIng != -1):
             listName = newIng.displayNorm
 
 
             if (listName not in self.ingredientList.keys()):
-                self.substituteIngredient(listName)
-                self.deleteIngredient()
+                self.substituteIngredient(listName, newIng)
+                self.deleteIngredient(None, None)
+                newIng.calibration = oldIng.calibration
+                newIng.location = oldIng.location
                 self.ingredientList[listName] = newIng
 
             else:
                 self.ingListView.adapter.data.remove(listName)
-                oldIng = self.ingredientList[listName]
                 oldIng.manual = newIng.manual
                 oldIng.inStock = newIng.inStock
                 oldIng.ingType = newIng.ingType
-                oldIng.calibration = newIng.calibration
 
             self.filterDrinks()
 
@@ -654,7 +654,7 @@ class BottleService(BoxLayout):
         self.filterDrinks()
         self.ingListView._trigger_reset_populate()
  
-    def deleteIngredientConfirm(self, *args):
+    def deleteIngredientConfirm(self):
  
         # If a list item is selected
         if self.ingListView.adapter.selection:
@@ -674,7 +674,7 @@ class BottleService(BoxLayout):
             confirmPop = OptionPopup()
             confirmPop.title = "Deletion Confirmation"
             confirmPop.labelText = "Deleting %s will obliterate \nit from your entire library." % (selection)
-            confirmPop.okayButton.bind(on_press = partial(self.deleteIngredient, selection, confirmPop))
+            confirmPop.okayButton.bind(on_press = partial(self.deleteIngredient, confirmPop))
             confirmPop.okayButton.text = "Delete"
             confirmPop.open()
 
@@ -687,9 +687,12 @@ class BottleService(BoxLayout):
             return
 
 
-    def deleteIngredient(self, selection, confirmPop, okayButton):
+    def deleteIngredient(self, confirmPop, okayButton):
 
-        confirmPop.dismiss()
+        selection = self.ingListView.adapter.selection[0].text
+
+        if (confirmPop != None):
+            confirmPop.dismiss()
 
         self.ingListView.adapter.data.remove(selection)
 
@@ -698,7 +701,7 @@ class BottleService(BoxLayout):
         self.ingListView._trigger_reset_populate()
 
 
-    def substituteIngredient(self, listName):
+    def substituteIngredient(self, listName, newIng):
 
         if self.ingListView.adapter.selection:
 
@@ -715,6 +718,15 @@ class BottleService(BoxLayout):
                             newIngs[ing] = oldIngs[ing]
 
                     drink.ingredients = newIngs
+
+
+            for curRow in [self.row0, self.row1, self.row2]:
+                for curButton in curRow.children:
+                    if (curButton.ing != None):
+                        if (curButton.text == selection):
+                            curButton.ing = newIng
+
+
 
  
     def filterIngListView(self, filterBy):
@@ -780,11 +792,6 @@ class BottleService(BoxLayout):
             self.shotInput.text = str(1.5)
 
         try:
-            self.calibrationInput.text = str(round(float(self.calibrationInput.text.rstrip()),2))         
-        except ValueError:
-            self.calibrationInput.text = str(3)   
-
-        try:
             self.strengthInput.text =  str(round(float(self.strengthInput.text.rstrip()),2))
         except ValueError:
             self.strengthInput.text = str(25)
@@ -792,7 +799,6 @@ class BottleService(BoxLayout):
 
 
 
-        self.timePerOunce = float(self.calibrationInput.text)
         self.ounceSetting = float(self.ounceInput.text)
         self.strengthSetting = float(self.strengthInput.text)
 
@@ -1409,7 +1415,8 @@ BoxLayout:
         ingMessage = ""
         ingCount = 0
         ingsToPour = {}
-        maxIng = 0.0
+        pourDur = 0
+
         for ing in drink.ingredients.keys():
             if (self.ingredientList[ing].manual == 1):
                 ingCount = ingCount + 1
@@ -1438,8 +1445,8 @@ BoxLayout:
                     ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curIng.calibration, "Pin": curPin}
 
 
-                if (drink.ingredients[ing]["Amount"] > maxIng):
-                    maxIng = drink.ingredients[ing]["Amount"]
+                if (ingsToPour[ing]["Time"] > pourDur):
+                    pourDur = ingsToPour[ing]["Time"]
 
         ingMessage = ingMessage[:-2]
         ingMessage = ingMessage + "\n"
@@ -1477,7 +1484,6 @@ BoxLayout:
         #     progressPop.instructionsText = ("Once Poured, Add: \n%sServe %s in a %s\n\n" % (ingMessage, drink.prepMethod, drink.glassware))
 
 
-        pourDur = maxIng * self.timePerOunce
         self.pbEvent = Clock.schedule_interval(partial(self.incrementPB, progressPop), (pourDur + self.ullagePressTime) / 100.)
 
         t = threading.Thread(target=self.openValves, args = [ingsToPour])
@@ -1807,9 +1813,7 @@ class BottleServiceApp(App):
         BS.strengthSetting = float(items[2])
         BS.maxAmtInput.text = str(float(items[3]))
         BS.shotInput.text = str(float(items[4]))
-        BS.calibrationInput.text = str(float(items[5]))
-        BS.timePerOunce = float(items[5])
-        BS.displayToggle.active = bool(float(items[6]))
+        BS.displayToggle.active = bool(float(items[5]))
 
 
         BS.ingredientList = ingredientList
@@ -1873,7 +1877,6 @@ class BottleServiceApp(App):
             writer.writerow([self.BS.strengthInput.text])        
             writer.writerow([self.BS.maxAmtInput.text])        
             writer.writerow([self.BS.shotInput.text])        
-            writer.writerow([self.BS.calibrationInput.text])        
             writer.writerow([int(self.BS.displayToggle.active)])        
 
 

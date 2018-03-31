@@ -307,6 +307,19 @@
             size_hint_y: None
             height: "40dp"
             Label:
+                text: "Type"
+
+            Spinner:
+                id: ingTypeSpinner
+                size_hint_x: None
+                width: 250
+                text: "-"
+                values: ['One', 'Two']
+
+        BoxLayout:
+            size_hint_y: None
+            height: "40dp"
+            Label:
                 text: "Brand"
 
 
@@ -331,19 +344,6 @@
                 text: ""
                 multiline: False  
                 write_tab: False  
-
-        BoxLayout:
-            size_hint_y: None
-            height: "40dp"
-            Label:
-                text: "Type"
-
-            Spinner:
-                id: ingTypeSpinner
-                size_hint_x: None
-                width: 250
-                text: "-"
-                values: ['One', 'Two']
 
         BoxLayout:
  
@@ -490,7 +490,6 @@ BottleService:
     robotName: robotName
     maxAmtInput: maxAmtInput
     shotInput: shotInput
-    calibrationInput: calibrationInput
     displayToggle: displayToggle
 
     manualButton: manualButton
@@ -1044,7 +1043,7 @@ BottleService:
                     spacing: 20
 
                     Label:
-                        text: "Maximum Ounces Per Ingredient"
+                        text: "Ounce Limit Per Ingredient In Recipes"
                         text_size: self.size
                         halign: 'right'
                     TextInput:
@@ -1073,22 +1072,8 @@ BottleService:
                     height: "30dp"
 
                     Label:
-                        text: "Seconds Per Ounce"
-                        text_size: self.size
-                        halign: 'right'
-                    TextInput:
-                        id: calibrationInput
-                        text: "3.0"
-                        multiline: False  
-                        write_tab: False 
 
-                BoxLayout:
-                    spacing: 20
-                    size_hint_y: None
-                    height: "30dp"
-
-                    Label:
-                        text: "Filter Drinks By In Stock Manual Ingredients"
+                        text: "Only show drinks with all manual ingredients in stock"
                         text_size: self.size
                         halign: 'right'
 
