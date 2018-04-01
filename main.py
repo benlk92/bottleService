@@ -1069,6 +1069,7 @@ Button:
     amtText: "Bottle %d"
     pourDur: 0
     imageSource: "data/icons/bottle3.png"
+    bottleImage: bottleImage 
 
     Label:
         text: root.amtText
@@ -1080,6 +1081,7 @@ Button:
         width: self.parent.width
 
     Image:
+        id: bottleImage
         source: root.imageSource
         y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
         x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
@@ -1325,6 +1327,8 @@ Button:
                             layout.remove_widget(child)
 
                 drink = self.drinkList[selection]
+
+
                 self.drinkTitle.labelName = drink.name
                 self.drinkTitle.drink = drink
                 # self.shotTitle.text = "Pour Shot of " + drink.name
