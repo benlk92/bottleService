@@ -205,6 +205,7 @@
     repeatCount: 0
     repeatTarget: 0
     continueButton: continueButton
+    cancelButton: cancelButton
     drink: None
     BoxLayout:
         orientation: 'vertical'
@@ -238,7 +239,7 @@
             Button:
                 size_hint_x: None
                 width: '60dp'
-                id: cancelButten
+                id: cancelButton
                 text: "Cancel"
                 halign: "center"
 
@@ -572,6 +573,7 @@ BottleService:
         ManageDrinks:
             id: manageDrinkScreen
             manager: manager
+            on_enter: root.isCancelled = False
             name: 'One'
 
             BoxLayout:

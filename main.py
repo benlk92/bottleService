@@ -56,8 +56,10 @@ class Drink(object):
         self.prepMethod = prepMethod
         self.ingredients = ingredients
 
+
+
 class IngredientListButton(ListItemButton):
-    pass
+    font_size = 24
     
 
 class SplashScreen(Screen):
@@ -262,6 +264,8 @@ class BottleService(BoxLayout):
     pourTime = 0
     startTime = 0
     endTime = 0
+
+    isCancelled = False
 
     def pairPopup(self, text):
 
@@ -1410,6 +1414,7 @@ BoxLayout:
         progressPop.manager = self.manager
         progressPop.repeatTarget = repeatTarget
         progressPop.drink = drink
+        progressPop.cancelButton.bind(on_press = partial(self.cancelPour))
 
         if (repeatTarget > 1):
             progressPop.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressPop.repeatCount + 1), progressPop.repeatTarget))
@@ -1512,6 +1517,12 @@ BoxLayout:
             progressPop.dismiss()
             self.manager.current = "One"
 
+    def cancelPour(self, cancelButton):
+        self.isCancelled = True
+
+        for pin in self.ingPins.values():
+            GPIO.output(pin["GPIO"],0)
+
 
     def pourExactConfirm(self, ingName, ingAmount):
         if (ingName != self.unselectedText):
@@ -1560,9 +1571,15 @@ BoxLayout:
 
 
     def incrementPB(self, progressBar, *largs):
-        if (progressBar.pbValue < 100):
+        if ((progressBar.pbValue < 100) & (not self.isCancelled)):
             progressBar.pbValue = progressBar.pbValue + 1
+
         else:
+
+            if (self.isCancelled):
+                progressBar.repeatCount = progressBar.repeatTarget
+                progressBar.pbValue = 0
+
             progressBar.continueButton.disabled = False
             if (progressBar.repeatCount < progressBar.repeatTarget):
                 progressBar.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressBar.repeatCount + 1), progressBar.repeatTarget))
@@ -1598,6 +1615,8 @@ BoxLayout:
         for i in range(len(times)):
             sleep(times[i])
             GPIO.output(pins[i],0)
+            if (self.isCancelled):
+                return
 
         for pin in ingsToPour.values():
             GPIO.output(pin["Pin"],0)
