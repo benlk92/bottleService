@@ -368,35 +368,53 @@ class BottleService(BoxLayout):
         # self.manualIngSpinner.values.sort()
 
 
-    def setCurButton(self, button):
+    def setCurButton(self, pairButton):
 
         if (self.pairingMode):
             self.ingSpinner.values = [ing.displayNorm for ing in self.ingredientList.values() if ((ing.manual == 0) & (ing.location == -1))]
             
-            if ((len(self.ingSpinner.values) > 0) | (button.ing.name != self.unpairedText)):
+            if ((len(self.ingSpinner.values) > 0) | (pairButton.ing.name != self.unpairedText)):
                     self.ingSpinner.values.sort()
                     self.justDisplay = 1
                     self.ingSpinner.values.append(self.unpairedText) 
-                    if (button.ing != None):
-                        self.ingSpinner.text = button.ing.displayNorm
+                    if (pairButton.ing != None):
+                        self.ingSpinner.text = pairButton.ing.displayNorm
                     else:
                         self.ingSpinner.text = self.unpairedText
 
                     self.justDisplay = 0
                     self.ingPopup.open()
             
-            self.currentButton = button
+            self.currentButton = pairButton
 
         else:
-            self.pourManuallyStart(button)
+            self.pourManuallyStart(pairButton)
 
+            t = threading.Thread(target=self.liveLabelUpdate, args = [pairButton])
+            t.start()
+
+            pairButton.imageSource = "data/icons/bottlePressed.png"
+
+
+    def liveLabelUpdate(self, pairButton):
+        while ((self.endTime - self.startTime) < 0):
+            sleep(.1)
+            pairButton.pourDur = pairButton.pourDur + .1
+            self.updatePairLabel(pairButton)
+
+    def setImageSource(self, pairButton):
+        pairButton.imageSource = "data/icons/bottle3.png"
 
     def updatePairLabel(self, pairButton):
-        if (self.pairingMode):
-            pairButton.amtText = ""
-        else:
-            pairButton.pourDur = pairButton.pourDur + (self.endTime - self.startTime)
-            pairButton.amtText = ("Amt: %.2f" % (pairButton.pourDur))
+        if ((not self.pairingMode) & (pairButton.ing.displayNorm != self.unpairedText)):
+            # pairButton.pourDur = pairButton.pourDur + (time() - self.startTime)
+
+            if (pairButton.ing.calibration == -1):
+                calibration = self.ingPins[pairButton.ing.location]["Calibration"]
+            else:
+                calibration = pairButton.ing.calibration 
+
+            pairButton.amtText = ("%.2f Oz." % ((pairButton.pourDur / calibration)))
 
 
     def toggleManualMode(self):
@@ -405,16 +423,19 @@ class BottleService(BoxLayout):
         for curRow in [self.row0, self.row1, self.row2]:
             for curButton in curRow.children:
                 if (curButton.ing.displayNorm != self.unpairedText):
-                    curButton.amtText = "Amt: 0.00"
+                    curButton.amtText = "0.00 Oz."
                     curButton.pourDur = 0
+                else:
+                    curButton.amtText = ""
 
     def togglePairingMode(self, pairButton):
         self.pairingMode = True
 
-        for curRow in [self.row0, self.row1, self.row2]:
+        bottleCount = 14
+        for curRow in [self.row2, self.row1, self.row0]:
             for curButton in curRow.children:
-                if (curButton.ing.displayNorm != self.unpairedText):
-                    curButton.amtText = ""
+                curButton.amtText = "Bottle " + str(bottleCount)
+                bottleCount = bottleCount - 1
 
 
     def settingsPopup(self):
@@ -1045,11 +1066,12 @@ Button:
     halign: "center"
     text: "%s" if self.ing == None else self.ing.displaySmall
     ing: None
-    amtText: ""
+    amtText: "Bottle %d"
     pourDur: 0
+    imageSource: "data/icons/bottle3.png"
 
     Label:
-        text: "Bottle %d"
+        text: root.amtText
         y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2) + 30
         x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
         size_hint_y: None
@@ -1058,17 +1080,8 @@ Button:
         width: self.parent.width
 
     Image:
-        source: "data/icons/bottle3.png"
+        source: root.imageSource
         y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
-        x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
-        size_hint_y: None
-        size_hint_x: None
-        height: self.parent.height
-        width: self.parent.width
-
-    Label:
-        text: self.parent.amtText
-        y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2) - 30
         x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
         size_hint_y: None
         size_hint_x: None
@@ -1080,7 +1093,7 @@ Button:
 
                 bottleButton.ing = Ingredient(self.unpairedText)
                 bottleButton.bind(on_press = self.setCurButton)
-                bottleButton.bind(on_release = self.updatePairLabel)
+                bottleButton.bind(on_release = self.setImageSource)
                 bottleButton.bind(on_release = partial(self.pourManuallyStop))
 
                 if ind not in self.initialPairings.keys():
@@ -1557,7 +1570,7 @@ BoxLayout:
 
             self.pbEvent = Clock.schedule_interval(partial(self.incrementPB, progressPop), (pourDur + self.ullagePressTime) / 100.)
 
-            t = threading.Thread(target=self.openValves, args = [ingsToPour])
+            t = threading.Thread(target=self.openValves, args = [ingsToPour, None])
             t.start()
 
         else:
@@ -1636,7 +1649,7 @@ BoxLayout:
             self.pbEvent.cancel()
 
 
-    def openValves(self, ingsToPour):
+    def openValves(self, ingsToPour, purgePopup):
 
         times = []
         pins = []
@@ -1669,6 +1682,12 @@ BoxLayout:
             GPIO.output(pin["Pin"],0)
 
         GPIO.output(self.pressurePin, 0)
+
+
+        if (purgePopup != None):
+            purgePopup.labelText = "Purge complete."
+            purgePopup.messageButton.disabled = False
+
 
 
 
@@ -1819,6 +1838,46 @@ BoxLayout:
             GPIO.output(ingPin, 0)
 
             self.pourTime = self.pourTime + (self.endTime - self.startTime)
+
+    def purgePopup(self):
+
+        calPop = OptionPopup()
+        calPop.title = "Purge Lines?"
+        calPop.labelText = "Purge .125 ounces from all locations \n with paired ingredients?"
+        calPop.okayButton.bind(on_press = partial(self.purgeLines, calPop))
+
+        calPop.okayButton.text = "Confirm"
+        calPop.cancelButton.text = "Cancel"
+        calPop.open()
+
+    def purgeLines(self, calPop, purgeButton):
+        calPop.dismiss()
+
+        stupidPop = MessagePopup()
+        stupidPop.title = "Purge in Progress"
+        stupidPop.labelText = "Purging in Progress.  Please wait."
+        stupidPop.messageButton.disabled = True
+        stupidPop.buttonText = "Continue"
+        stupidPop.open()
+
+        purgeOunces = .125
+
+        ingsToPour = {}
+
+        for curRow in [self.row0, self.row1, self.row2]:
+            for curButton in curRow.children:
+                if (curButton.ing.displayNorm != self.unpairedText):
+                    curIng = curButton.ing
+                    curLocation = self.ingPins[curIng.location]
+                    curPin = curLocation["GPIO"]
+
+                    if (curIng.calibration == -1):
+                        ingsToPour[curIng.displayNorm] = {"Time": purgeOunces * curLocation["Calibration"], "Pin": curPin}
+                    else:
+                        ingsToPour[curIng.displayNorm] = {"Time": purgeOunces * curIng.calibration, "Pin": curPin}
+
+        t = threading.Thread(target=self.openValves, args = [ingsToPour, stupidPop])
+        t.start()
 
 
 

@@ -73,6 +73,7 @@
     labelText: ""
     messageLabel: messageLabel
     buttonText: "Dismiss"
+    messageButton: messageButton
     BoxLayout:
         orientation: 'vertical'
         Label:
@@ -80,6 +81,7 @@
             halign: "center"
             text: root.labelText
         Button:
+            id: messageButton
             size_hint_y: None
             height: "60dp"
             text: root.buttonText
@@ -1120,7 +1122,20 @@ BottleService:
                                 rgb: 1,1,1
                             Rectangle:
                                 pos:self.center_x-8, self.center_y-8
-                                size:[16,16]                                            
+                                size:[16,16]
+
+                BoxLayout:
+                    size_hint_y: None
+                    height: "60dp" 
+                    BoxLayout:
+
+                    Button:
+                        size_hint_x: None
+                        width: "300dp" 
+                        text: "Purge Lines"
+                        on_press: root.purgePopup()
+
+                    BoxLayout:                              
 
 
                 BoxLayout:
