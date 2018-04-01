@@ -202,6 +202,10 @@
     pbValue: 0
     instructionsText: ""
     manager: None
+    repeatCount: 0
+    repeatTarget: 0
+    continueButton: continueButton
+    drink: None
     BoxLayout:
         orientation: 'vertical'
         Label:
@@ -215,14 +219,15 @@
             height: '40dp'
             value: root.pbValue
 
-        Button:
-            id: instructions
+        Label:
+            size_hint_y: None
+            height: "100dp"
             text: progressPop.instructionsText
+
+        Button:
+            id: continueButton
+            text: "Click to Pour Drinks"
             halign: "center"
-            on_press: 
-                if pb.value == 100: progressPop.manager.current = "One"
-            on_press: 
-                if pb.value == 100:progressPop.dismiss()
 
 
 
@@ -232,56 +237,68 @@
     size_hint: None, None
     size: 400,200
     manager: None
+    countButton: countButton
+    drinkType: "Drink"
     BoxLayout:
         textTest: 'countLayout'
         orientation: 'vertical'
 
         BoxLayout:
+            spacing: 20
+            BoxLayout:
 
-            Button:
-                background_color: (0,0,0,0)
-                background_normal: ''
-                on_press: 
-                    if int(drinkCount.text[0]) > 2: drinkCount.text = (str(int(drinkCount.text[0]) - 1) + " Drinks")
-                    elif int(drinkCount.text[0]) == 2: drinkCount.text = (str(int(drinkCount.text[0]) - 1) + " Drink")
+                Button:
+                    background_color: (0,0,0,0)
+                    background_normal: ''
+                    on_press: 
+                        if int(drinkCount.text[0]) > 2: drinkCount.text = (str(int(drinkCount.text[0]) - 1) + " " + root.drinkType + "s")
+                        elif int(drinkCount.text[0]) == 2: drinkCount.text = (str(int(drinkCount.text[0]) - 1) + " " + root.drinkType)
 
 
 
-                Image:
-                    source: 'data/icons/minus.png'
-                    y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
-                    x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
-                    size_hint_y: None
+                    Image:
+                        source: 'data/icons/minus.png'
+                        y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                        x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                        size_hint_y: None
+                        size_hint_x: None
+                        height: 20
+                        width: 20
+
+                Label:
+                    id: drinkCount
                     size_hint_x: None
-                    height: 20
-                    width: 20
+                    width: "40dp"
+                    halign: "center"
+                    text: "1 " + root.drinkType
 
-            Label:
-                id: drinkCount
-                size_hint_x: None
-                width: "40dp"
-                halign: "center"
-                text: "1 Drink"
-
-            Button:
-                background_color: (0,0,0,0)
-                background_normal: ''
-                on_press: if int(drinkCount.text[0]) < 9: drinkCount.text = (str(int(drinkCount.text[0]) + 1) + " Drinks")
+                Button:
+                    background_color: (0,0,0,0)
+                    background_normal: ''
+                    on_press: if int(drinkCount.text[0]) < 9: drinkCount.text = (str(int(drinkCount.text[0]) + 1) + " " + root.drinkType + "s")
 
 
-                Image:
-                    source: 'data/icons/plus2.png'
-                    y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
-                    x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
-                    size_hint_y: None
-                    size_hint_x: None
-                    height: 20
-                    width: 20
+                    Image:
+                        source: 'data/icons/plus2.png'
+                        y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2)
+                        x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+                        size_hint_y: None
+                        size_hint_x: None
+                        height: 20
+                        width: 20
+
+            BoxLayout:
+
+                padding: [0,20,10,20]
+                Spinner:
+                    id: howPourSpinner
+                    text: 'Pour All Together'
+                    values: ['Pour All Together', 'Pour Individually']
 
         Button:
             id: countButton
-            textTest: "button"
-            text: "Pour Drinks!"
+            howPour: howPourSpinner.text
+            text: "Pour " + root.drinkType + "s!"
             count: drinkCount.text
             on_press: countPop.dismiss()
 
@@ -769,7 +786,7 @@ BottleService:
                     Button:
                         id: drinkTitle
                         text: "Pour Drink"
-                        on_press: root.howManyDrinks(self.drink)
+                        on_press: root.howManyDrinks(self.drink, "Drink")
                         font_size: 25
                         size_hint_y: None
                         height: "40dp"
@@ -790,7 +807,7 @@ BottleService:
                     Button:
                         id: shotTitle
                         text: "Pour Shot"
-                        on_press: root.howManyShots(drinkTitle.drink)
+                        on_press: root.howManyDrinks(drinkTitle.drink, "Shot")
                         font_size: 25
                         size_hint_y: None
                         height: "40dp"

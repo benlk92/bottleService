@@ -1341,7 +1341,7 @@ BoxLayout:
         self.bartenderChoosing = 0
 
 
-    def howManyDrinks(self, drink):
+    def howManyDrinks(self, drink, drinkType):
 
         if (all([row["Toggle"].active for row in self.curDrinkManager])):
             stupidPop = MessagePopup()
@@ -1354,42 +1354,23 @@ BoxLayout:
         else:
 
             countPop = CountPopup()
+            countPop.drinkType = drinkType
             countPop.open()
+            countPop.countButton.bind(on_press = partial(self.calcIngs, drink, drinkType))
 
-            for child in countPop.children[0].children[0].children:
-                if hasattr(child, "textTest"):
-                    for child2 in child.children:
-                        if hasattr(child2, "textTest"):
-                            if (child2.textTest == "button"):
-                                child2.bind(on_press = partial(self.calcIngs, drink))
-
-    def howManyShots(self, drink):
-
-
-        if (all([row["Toggle"].active for row in self.curDrinkManager])):
-            stupidPop = MessagePopup()
-            stupidPop.title = "No Ingredients Included Error"
-            stupidPop.labelText = "Nice.  A drink with no ingredients.  Real nice."
-            stupidPop.buttonText = "Okay"
-            stupidPop.open()
-            return
-
-        else:
-
-            countPop = CountPopup()
-            countPop.open()
-
-            for child in countPop.children[0].children[0].children:
-                if hasattr(child, "textTest"):
-                    for child2 in child.children:
-                        if hasattr(child2, "textTest"):
-                            if (child2.textTest == "button"):
-                                child2.bind(on_press = partial(self.pourShot, drink))
-
-    def calcIngs(self, drink, button):
+    def calcIngs(self, drink, drinkType, button):
 
         oldIngs = drink.ingredients
         newIngs = {}
+
+        if (button.howPour == "Pour All Together"):
+            drinkPourCount = float(button.count[0])
+            repeatTarget = 1.0
+        elif (button.howPour == "Pour Individually"):
+            drinkPourCount = 1.0
+            repeatTarget = float(button.count[0])
+
+
               
         for ing in oldIngs.keys():
             for ing2 in self.curDrinkManager:
@@ -1400,17 +1381,40 @@ BoxLayout:
                     toExclude = ing2["Toggle"].active
 
             if (not toExclude):
-                newIngs[ing] = {"Amount": round((oldIngs[ing]["Amount"] * float(button.count[0]) * (1 + curStrength / 100.)),3)}
+                newIngs[ing] = {"Amount": round((oldIngs[ing]["Amount"] * drinkPourCount * (1 + curStrength / 100.)), 3)}
 
-        self.pourDrink(Drink("NewDrink", ingredients = newIngs, prepMethod = drink.prepMethod, glassware = drink.glassware))
+        newDrink = Drink("NewDrink", ingredients = newIngs, prepMethod = drink.prepMethod, glassware = drink.glassware)
+        if (drinkType == "Drink"):
+            self.progressPopGen(newDrink, repeatTarget)
+        elif (drinkType == "Shot"):
+            self.calcShots(newDrink, drinkPourCount, repeatTarget)
+
+
+    def calcShots(self, drink, drinkCount, repeatTarget):
+        oldIngs = drink.ingredients
+        newIngs = {}
+        totalOunces = 0.0
+
+        for ing in oldIngs.keys():
+            totalOunces = totalOunces + float(oldIngs[ing]["Amount"])
+
+        for ing in oldIngs.keys():
+            newIngs[ing] = {"Amount": round((float(oldIngs[ing]["Amount"]) / totalOunces * float(self.shotInput.text) * drinkCount), 3)}
+        self.progressPopGen(Drink("NewDrink", ingredients = newIngs, prepMethod = drink.prepMethod, glassware = drink.glassware), repeatTarget)
 
 
 
-
-    def pourDrink(self, drink):
+    def progressPopGen(self, drink, repeatTarget):
         progressPop = ProgressPopup(auto_dismiss = False)
         progressPop.open()
         progressPop.manager = self.manager
+        progressPop.repeatTarget = repeatTarget
+        progressPop.drink = drink
+
+        if (repeatTarget > 1):
+            progressPop.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressPop.repeatCount + 1), progressPop.repeatTarget))
+        else:
+            progressPop.continueButton.text = "Click to Pour Drinks"
 
         ingMessage = ""
         ingCount = 0
@@ -1420,7 +1424,7 @@ BoxLayout:
         for ing in drink.ingredients.keys():
             if (self.ingredientList[ing].manual == 1):
                 ingCount = ingCount + 1
-                ingMessage = ingMessage + str(drink.ingredients[ing]["Amount"]) + " ounces of " + ing + ",\n"
+                ingMessage = ingMessage + str(round(drink.ingredients[ing]["Amount"], 2)) + " ounces of " + ing + ",\n"
 
             elif (self.ingredientList[ing].manual == 0):
                 if (len(self.curDrinkManager) > 0):
@@ -1447,6 +1451,7 @@ BoxLayout:
 
                 if (ingsToPour[ing]["Time"] > pourDur):
                     pourDur = ingsToPour[ing]["Time"]
+
 
         ingMessage = ingMessage[:-2]
         ingMessage = ingMessage + "\n"
@@ -1480,27 +1485,33 @@ BoxLayout:
 
             progressPop.instructionsText = ingMessage + prepText+ glassText + "\n\n"
 
-        # else:
-        #     progressPop.instructionsText = ("Once Poured, Add: \n%sServe %s in a %s\n\n" % (ingMessage, drink.prepMethod, drink.glassware))
+        progressPop.continueButton.bind(on_press = partial(self.pourDrink, progressPop, pourDur, ingsToPour))
 
 
-        self.pbEvent = Clock.schedule_interval(partial(self.incrementPB, progressPop), (pourDur + self.ullagePressTime) / 100.)
 
-        t = threading.Thread(target=self.openValves, args = [ingsToPour])
-        t.start()
 
-    def pourShot(self, drink, button):
-        oldIngs = drink.ingredients
-        newIngs = {}
-        totalOunces = 0
 
-        for ing in oldIngs.values():
-            totalOunces = totalOunces + float(ing["Amount"])
-        
-        for ing in oldIngs.keys():
-            newIngs[ing] = {"Amount": round(oldIngs[ing]["Amount"] / totalOunces * float(self.shotInput.text) * float(button.count[0]),2)}
+    def pourDrink(self, progressPop, pourDur, ingsToPour, progressButton):
 
-        self.pourDrink(Drink("ShotDrink", ingredients = newIngs, glassware = "Shot Glass", prepMethod = "Straight Up"))
+        drink = progressPop.drink
+        progressPop.continueButton.disabled = True
+        progressPop.pbValue = 0
+        progressPop.continueButton.text = "Pour in Progress"
+
+        if (progressPop.repeatCount < progressPop.repeatTarget):
+
+            progressPop.repeatCount = progressPop.repeatCount + 1
+
+
+            self.pbEvent = Clock.schedule_interval(partial(self.incrementPB, progressPop), (pourDur + self.ullagePressTime) / 100.)
+
+            t = threading.Thread(target=self.openValves, args = [ingsToPour])
+            t.start()
+
+        else:
+            progressPop.dismiss()
+            self.manager.current = "One"
+
 
     def pourExactConfirm(self, ingName, ingAmount):
         if (ingName != self.unselectedText):
@@ -1552,9 +1563,14 @@ BoxLayout:
         if (progressBar.pbValue < 100):
             progressBar.pbValue = progressBar.pbValue + 1
         else:
-            progressBar.instructionsText = (progressBar.instructionsText + "Click to Continue")
+            progressBar.continueButton.disabled = False
+            if (progressBar.repeatCount < progressBar.repeatTarget):
+                progressBar.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressBar.repeatCount + 1), progressBar.repeatTarget))
+            else:
+                progressBar.continueButton.text = "Click to Continue"
 
             self.pbEvent.cancel()
+
 
     def openValves(self, ingsToPour):
 
