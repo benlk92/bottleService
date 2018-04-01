@@ -61,7 +61,6 @@ class Drink(object):
 class IngredientListButton(ListItemButton):
     font_size = 24
     
-
 class SplashScreen(Screen):
     pass
 
@@ -203,14 +202,14 @@ class BottleService(BoxLayout):
     inStockToggle = ObjectProperty(None)
     manualToggle = ObjectProperty(None)
 
-    manualIngSpinner = ObjectProperty(None)
+    # manualIngSpinner = ObjectProperty(None)
     filterSpinner = ObjectProperty(None)
 
     ingBl = ObjectProperty(None)
 
     mainFilter = ObjectProperty(None)
 
-    manualButton = ObjectProperty(None)
+    # manualButton = ObjectProperty(None)
     submitButton = ObjectProperty(None)
 
     manualStop = NumericProperty(0)
@@ -266,6 +265,7 @@ class BottleService(BoxLayout):
     endTime = 0
 
     isCancelled = False
+    pairingMode = True
 
     def pairPopup(self, text):
 
@@ -288,8 +288,9 @@ class BottleService(BoxLayout):
                 calPop = OptionPopup()
                 calPop.title = "Prime the lines"
                 calPop.labelText = ("Press and hold the Prime button\n until %s is dispensed" % text)
-                calPop.okayButton.bind(on_press = partial(self.pourManuallyStart, ing.displayNorm))
-                calPop.okayButton.bind(on_release = partial(self.pourManuallyStop, ing.displayNorm))
+                calPop.okayButton.ing = ing
+                calPop.okayButton.bind(on_press = partial(self.pourManuallyStart))
+                calPop.okayButton.bind(on_release = partial(self.pourManuallyStop))
                 calPop.okayButton.text = "Prime"
                 calPop.cancelButton.text = "Continue"
                 calPop.cancelButton.bind(on_press = partial(self.calibrateConfirm, calPop, ing))
@@ -334,9 +335,10 @@ class BottleService(BoxLayout):
         self.updateLabel(calPop, ounceCount, ing, None)
 
         calPop.option1.text = "Calibrate"
-        calPop.option1.bind(on_press = partial(self.pourManuallyStart, ing.displayNorm))
+        calPop.option1.ing = ing
+        calPop.option1.bind(on_press = partial(self.pourManuallyStart))
         calPop.option1.bind(on_release = partial(self.updateLabel, calPop, ounceCount, ing))
-        calPop.option1.bind(on_release = partial(self.pourManuallyStop, ing.displayNorm))
+        calPop.option1.bind(on_release = partial(self.pourManuallyStop))
         calPop.option2.text = "Done"
         calPop.option2.bind(on_release = partial(self.calculateCalibration, ounceCount, ing, calPop))
         calPop.option3.text = "Reset"
@@ -361,32 +363,64 @@ class BottleService(BoxLayout):
         ing.calibration = self.pourTime / float(ounceCount)
 
     def filterManIngSpinnerList(self):
-        self.manualIngSpinner.values  = [ing.displayNorm for ing in self.ingredientList.values() if ing.location != -1]
-        self.manualIngSpinner.values.sort()
+        pass
+        # self.manualIngSpinner.values  = [ing.displayNorm for ing in self.ingredientList.values() if ing.location != -1]
+        # self.manualIngSpinner.values.sort()
 
 
     def setCurButton(self, button):
 
-        self.ingSpinner.values = [ing.displayNorm for ing in self.ingredientList.values() if ((ing.manual == 0) & (ing.location == -1))]
-        
-        if ((len(self.ingSpinner.values) > 0) | (button.ing.name != self.unpairedText)):
-                self.ingSpinner.values.sort()
-                self.justDisplay = 1
-                self.ingSpinner.values.append(self.unpairedText) 
-                if (button.ing != None):
-                    self.ingSpinner.text = button.ing.displayNorm
-                else:
-                    self.ingSpinner.text = self.unpairedText
+        if (self.pairingMode):
+            self.ingSpinner.values = [ing.displayNorm for ing in self.ingredientList.values() if ((ing.manual == 0) & (ing.location == -1))]
+            
+            if ((len(self.ingSpinner.values) > 0) | (button.ing.name != self.unpairedText)):
+                    self.ingSpinner.values.sort()
+                    self.justDisplay = 1
+                    self.ingSpinner.values.append(self.unpairedText) 
+                    if (button.ing != None):
+                        self.ingSpinner.text = button.ing.displayNorm
+                    else:
+                        self.ingSpinner.text = self.unpairedText
 
-                self.justDisplay = 0
-                self.ingPopup.open()
-        
-        self.currentButton = button
+                    self.justDisplay = 0
+                    self.ingPopup.open()
+            
+            self.currentButton = button
+
+        else:
+            self.pourManuallyStart(button)
+
+
+    def updatePairLabel(self, pairButton):
+        if (self.pairingMode):
+            pairButton.amtText = ""
+        else:
+            pairButton.pourDur = pairButton.pourDur + (self.endTime - self.startTime)
+            pairButton.amtText = ("Amt: %.2f" % (pairButton.pourDur))
+
+
+    def toggleManualMode(self):
+        self.pairingMode = False
+
+        for curRow in [self.row0, self.row1, self.row2]:
+            for curButton in curRow.children:
+                if (curButton.ing.displayNorm != self.unpairedText):
+                    curButton.amtText = "Amt: 0.00"
+                    curButton.pourDur = 0
+
+    def togglePairingMode(self, pairButton):
+        self.pairingMode = True
+
+        for curRow in [self.row0, self.row1, self.row2]:
+            for curButton in curRow.children:
+                if (curButton.ing.displayNorm != self.unpairedText):
+                    curButton.amtText = ""
 
 
     def settingsPopup(self):
         setPop = MyPopup()
         setPop.manager = self.manager
+        setPop.pairButton.bind(on_press = partial(self.togglePairingMode))
         setPop.open()
 
 
@@ -726,7 +760,7 @@ class BottleService(BoxLayout):
 
             for curRow in [self.row0, self.row1, self.row2]:
                 for curButton in curRow.children:
-                    if (curButton.ing != None):
+                    if (curButton.ing.displayNorm != self.unpairedText):
                         if (curButton.text == selection):
                             curButton.ing = newIng
 
@@ -1011,6 +1045,8 @@ Button:
     halign: "center"
     text: "%s" if self.ing == None else self.ing.displaySmall
     ing: None
+    amtText: ""
+    pourDur: 0
 
     Label:
         text: "Bottle %d"
@@ -1030,17 +1066,28 @@ Button:
         height: self.parent.height
         width: self.parent.width
 
+    Label:
+        text: self.parent.amtText
+        y: ((2 * self.parent.y + self.parent.height) / 2) - (self.height / 2) - 30
+        x: ((2 * self.parent.x + self.parent.width) / 2) - (self.width / 2)
+        size_hint_y: None
+        size_hint_x: None
+        height: self.parent.height
+        width: self.parent.width
+
 """ % (ind, ind, self.unpairedText, (ind + 1)))
 
 
                 bottleButton.ing = Ingredient(self.unpairedText)
-                bottleButton.bind(on_press=self.setCurButton)
+                bottleButton.bind(on_press = self.setCurButton)
+                bottleButton.bind(on_release = self.updatePairLabel)
+                bottleButton.bind(on_release = partial(self.pourManuallyStop))
 
                 if ind not in self.initialPairings.keys():
                     bottleButton.text = self.unpairedText
                 else:
                     bottleButton.ing = self.initialPairings[ind]
-                    self.manualIngSpinner.values.append(bottleButton.ing.displayNorm)
+                    # self.manualIngSpinner.values.append(bottleButton.ing.displayNorm)
 
                 if i == 0:
                     self.row0.add_widget(bottleButton)
@@ -1050,7 +1097,7 @@ Button:
                     self.row2.add_widget(bottleButton)
 
             self.initialized = 1
-            self.manualIngSpinner.values.sort()
+            # self.manualIngSpinner.values.sort()
 
 
     def deleteDrinkConfirm(self):
@@ -1749,11 +1796,11 @@ BoxLayout:
         self.bartenderChoosing = 1
         self.makeDrink(layout)
 
-    def pourManuallyStart(self, ingName, pourButton):
+    def pourManuallyStart(self, pourButton):
         self.startTime = time()
 
-        if (ingName != self.unselectedText):
-            ingPin = self.ingPins[self.ingredientList[ingName].location]['GPIO']
+        if (pourButton.ing.displayNorm != self.unselectedText):
+            ingPin = self.ingPins[pourButton.ing.location]['GPIO']
             GPIO.output(self.pressurePin, 1)
             GPIO.output(ingPin, 1)
 
@@ -1764,33 +1811,14 @@ BoxLayout:
             stupidPop.buttonText = "Okay"
             stupidPop.open()
 
-    def pourManuallyStop(self, ingName, pourButton):
+    def pourManuallyStop(self, pourButton):
         self.endTime = time()
-        if (ingName != self.unselectedText):
-            ingPin = self.ingPins[self.ingredientList[ingName].location]['GPIO']
+        if (pourButton.ing.displayNorm != self.unselectedText):
+            ingPin = self.ingPins[pourButton.ing.location]['GPIO']
             GPIO.output(self.pressurePin, 0)
             GPIO.output(ingPin, 0)
 
-        self.pourTime = self.pourTime + (self.endTime - self.startTime)
-
-
-
-    # def pourManuallyTimer(self):
-    #     self.pourTime = 0
-
-    #     while True:
-
-    #         if (self.pouringManually == 1):
-    #             sleep(self.timerIncrement)
-    #             self.pourTime = self.pourTime + self.timerIncrement
-    #         elif (self.pouringManually == 0):
-    #             print(self.pourTime)
-    #             return
-
-
-
-
-
+            self.pourTime = self.pourTime + (self.endTime - self.startTime)
 
 
 
