@@ -208,26 +208,39 @@
     drink: None
     BoxLayout:
         orientation: 'vertical'
-        Label:
-            text: 'Progress: {}%'.format(int(pb.value))
+        spacing: 20
+        BoxLayout:
+            orientation: 'vertical'
             size_hint_y: None
-            height: '40dp'
+            height: "40dp"
+            Label:
+                text: 'Progress: {}%'.format(int(pb.value))
+                size_hint_y: None
+                height: '30dp'
 
-        ProgressBar:
-            id: pb
-            size_hint_y: None
-            height: '40dp'
-            value: root.pbValue
+            ProgressBar:
+                id: pb
+                size_hint_y: None
+                height: '10dp'
+                value: root.pbValue
 
         Label:
-            size_hint_y: None
-            height: "100dp"
             text: progressPop.instructionsText
 
-        Button:
-            id: continueButton
-            text: "Click to Pour Drinks"
-            halign: "center"
+        BoxLayout:
+            size_hint_y: None
+            height: '60dp'
+            Button:
+                id: continueButton
+                text: "Click to Pour Drinks"
+                halign: "center"
+
+            Button:
+                size_hint_x: None
+                width: '60dp'
+                id: cancelButten
+                text: "Cancel"
+                halign: "center"
 
 
 
