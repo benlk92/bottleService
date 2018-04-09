@@ -1,15 +1,92 @@
-Ben's Pajamas,Highball,Shaken,Bitters,0.5,Rumpleminze,10.0,Vodka,0.25
+Ben's Pajemas,Highball,Shaken,Bitters,0.5,Rumpleminze,10,Vodka,0.25
 Margarita,Lowball,Shaken,Triple Sec,0.5,Tequila,1.5,Lime Juice,0.5
-Planter's Punch,,,Orange Slice,1.0,Bitters,1.0,Dark Rum,1.0,Lemon Wedge,1.0,Light Rum,1.0,Simple Syrup,1.0,Lemon Juice,1.0,Lime Juice,1.0,Grenadine,1.0
+Planter's Punch,,,Orange Slice,1,Bitters,1,Dark Rum,1,Lemon Wedge,1,Light Rum,1,Simple Syrup,1,Lemon Juice,1,Lime Juice,1,Grenadine,1
 Hemingway Daiquiri,,,Light Rum,1.5,Simple Syrup,0.75,Lime Juice,0.75,Maraschino,0.5,Grapefruit Juice,0.5
-French 75,,,Lemon Juice,0.25,Gin,0.5,Simple Syrup,0.25,Champagne,3.0
-Greyhound,,,Grapefruit Juice,4.0,Vodka,1.5
-Tom Collins,Highball,On the Rocks,Lemon Juice,0.5,Gin,2.0,Simple Syrup,0.75,Cherry,0.0,Club Soda,1.5
-Real Martini,Cocktail Glass,Stirred,Gin,1.5,Vermouth,0.5
-Long Island Ice Tea,Highball,On the Rocks,Lemon Juice,0.75,Gin,0.5,Dark Rum,0.5,Coke,3.0,Triple Sec,0.5,Tequila,0.5,Simple Syrup,0.5,Vodka,0.5
-Mint Julep,,,Bourbon,2.0,Simple Syrup,0.25,Mint,0.0,Crushed Ice,2.0
+French 75,,,Lemon Juice,0.25,Gin,0.5,Simple Syrup,0.25,Chempagne,3
+Greyhound,,,Grapefruit Juice,4,Vodka,1.5
+Tem Collins,Highball,On the Rocks,Lemon Juice,0.5,Gin,2,Simple Syrup,0.75,Cherry,0,Club Soda,1.5
+Real Martini,Cocktail Glass,Stirred,Gin,1.5,Dry Vermouth,0.5
+Long Island Ice Tea,Highball,On the Rocks,Lemon Juice,0.75,Gin,0.5,Dark Rum,0.5,Coke,3,Triple Sec,0.5,Tequila,0.5,Simple Syrup,0.5,Vodka,0.5
+Mint Julep,,,Bourbon,2,Simple Syrup,0.25,Mint,0,Crushed Ice,2
 Aviation,Cocktail Glass,Straight Up,Lemon Juice,0.5,Creme de Violette,0.25,Gin,1.5,Simple Syrup,0.25,Maraschino,0.5
-Kamikazi,Shot Glass,Straight Up,Triple Sec,0.75,Orange Slice,0.0,Rose's Sweet Lime,0.75,Vodka,2.0
-Sazerac,,,Lemon Wedge,0.0,Bitters,0.25,Absinthe,0.25,Bourbon,2.0
-Cosmopolitan,Cocktail Glass,Stirred,Triple Sec,0.5,Citrus Vodka,1.5,Lime Juice,0.25,Cranberry Juice,1.0
+Kemikazi,Shot Glass,Straight Up,Triple Sec,0.75,Orange Slice,0,Rose's Sweet Lime,0.75,Vodka,2
+Sazerac,,,Lemon Wedge,0,Bitters,0.25,Absinthe,0.25,Bourbon,2
+Coemopolitan,Cocktail Glass,Stirred,Triple Sec,0.5,Citrus Vodka,1.5,Lime Juice,0.25,Cranberry Juice,1
 Whiskey Shot,Shot Glass,Straight Up,Whiskey,1.5
+Alexander, , ,Creme De Cacao (Brown),1,Cognac,1,Cream,1
+Grasshopper, , ,Creme De Cacao (White),1,Creme De Menthe (Green),1,Cream,1
+Sazerac, , ,Cognac,1.75,Sugar Cube,0,Absinthe,0.25,Peychauds Bitters,0
+Between The Sheets, , ,White Rum,1,Cognac,1,Lemon Juice,0.75,Triple Sec,1
+Dirty Martini, , ,Dry Vermouth,0,Vodka,2,Olive Juice,0
+Rose, , ,Dry Vermouth,1.25,Kirsch,0.75,Strawberry Syrup,0
+Paradise, , ,Gin,1.25,Apricot Brandy,0.75,Orange Juice,0.5
+Harvey Wallbanger, , ,Vodka,1.5,Galliano,0.5,Orange Juice,3
+Pisco Sour, , ,Egg White,0,Simple Syrup,0,Lemon Juice,0,Pisco,0
+White Lady, , ,Gin,1.25,Lemon Juice,0.75,Triple Sec,1
+Whiskey Sour, , ,Bourbon,1.5,Simple Syrup,0.5,Lemon Juice,1
+Mary Pickford, , ,White Rum,2,Pineapple Juice,2,Maraschino,0.25,Grenadine,0.25
+Vesper, , ,Gin,2,Lemon Twist,0,Vodka,0,Lillet Blonde,0
+Singapore Sling, , ,Lime Juice,0.5,Angostura Bitters,0,Pineapple Juice,4,Grenadine,0.25,Benedictine,0.25,Triple Sec,0.25,Cherry Liqueur,0.5,Gin,1
+Monkey Gland, , ,Gin,1.75,Absinthe,0,Grenadine,0,Orange Juice,1
+Moscow Mule, , ,Lime Wedge,0,Vodka,1.5,Lime Juice,0.25,Ginger Beer,4
+Old Fashioned, , ,Bourbon,1.5,Angostura Bitters,0,Sugar Cube,0,Water,0
+Bramble, , ,Simple Syrup,0.25,Gin,1.25,Lemon Juice,0.5,Blackberry Liqueur,0.5
+Cuba Libre, , ,White Rum,1.75,Lime Juice,0.25,Coke,4
+Manhattan, , ,Angostura Bitters,0,Red Vermouth,0.75,Rye Whiskey,1.75
+Pina Colada, , ,White Rum,1,Pineapple Juice,3,Coconut Cream,1
+Long Island Iced Tea, , ,Vodka,0.5,Tequila,0.5,Triple Sec,0.5,Lemon Juice,0.75,Gomme Syrup,1,Coke,0,Gin,0.5,White Rum,0.5
+Negroni, , ,Gin,1,Campari,1,Sweet Red Vermouth,1
+Bellini, , ,Prosecco,3.25,Peach Puree,1.75
+Ramos Gin Fizz, , ,Simple Syrup,1,Lime Juice,0.5,Vanilla Extract,0,Orange Flower Water,0,Egg White,0,Gin,1.5,Lemon Juice,0.5,Cream,2
+Espresso Martini, , ,Simple Syrup,0,Vodka,1.75,Kahlua,0.25,Espresso,0
+B52, , ,Grand Marnier,0.75,Kahlua,0.75,Baileys Irish Cream,0.75
+Kir, , ,Dry White Wine,3,Creme De Cassis,0.25
+Yellow Bird, , ,White Rum,0,Lime Juice,0,Triple Sec,0,Galliano,0
+Vampiro, , ,Lime Juice,0,Finely Chopped Onion,0,Tomato Juice,0,Red Hot Chili Peppers,0,Honey,0,Tequila,0,Salt,0,Worcestershire,0,Orange Juice
+French Martini, , ,Vodka,1.5,Raspberry Liqueur,0.5,Pineapple Juice,0.5
+Screwdriver, , ,Vodka,1.75,Orange Juice,3.25
+Mimosa, , ,Orange Juice,2.5,Champagne,2.5
+Lemon Drop Martini, , ,Triple Sec,0,Citrus Vodka,0,Lemon Juice,0
+Irish Coffee, , ,Irish Whiskey,1.25,Brown Sugar,0,Hot Coffee,3,Cream,1
+Bloody Mary, , ,Tabasco,0,Vodka,1.5,Worcestershire,0,Pepper,0,Lemon Juice,0.5,Celery Salt,0,Tomato Juice,3
+Dry Martini, , ,Gin,2,Dry Vermouth,0.25
+Sex On The Beach, , ,Vodka,1.25,Cranberry Juice,1.25,Orange Juice,1.25,Peach Schnapps,0.75
+Aviation, , ,Gin,1.5,Lemon Juice,0.5,Maraschino,0.5
+Barracuda, , ,Lime Juice,0,Gold Rum,1.5,Galliano,0.5,Pineapple Juice,2,Prosecco,3
+Porto Flip, , ,Egg Yolk,0.25,Brandy,0.5,Red Port,1.5
+Margarita, , ,Tequila,1.25,Triple Sec,0.75,Lime Juice,0.5
+French 75, , ,Gin,1,Champagne,2,Lemon Juice,0.5,Simple Syrup,0
+God Father, , ,Scotch,1.25,Amaretto,1.25
+Rusty Nail, , ,Drambuie,0.75,Scotch Whisky,1.5
+John Collins, , ,Simple Syrup,0.5,Gin,1.5,Lemon Juice,1,Club Soda,2
+Champagne Cocktail, , ,Champagne,3,Cognac,0.25,Angostura Bitters,0,Sugar Cube,0
+Hemingway Special, , ,Lime Juice,0,Grapefruit Juice,1.25,White Rum,2,Maraschino,0.5
+Kamikaze, , ,Lime Juice,0,Triple Sec,0,Vodka,0
+Casino, , ,Orange Bitters,0.25,Lemon Juice,0.25,Maraschino,0.25,Old Tom Gin,1.25
+God Mother, , ,Vodka,1.25,Amaretto,1.25
+Golden Dream, , ,Galliano,0.75,Orange Juice,0.75,Triple Sec,0.75,Cream,0.25
+Mai-Tai, , ,Dark Rum,0.75,Orgeat Syrup,0.5,White Rum,1.25,Orange Curacao,0.5,Lime Juice,0.25
+Tequila Sunrise, , ,Tequila,1.5,Orange Juice,0,Grenadine,0
+Derby, , ,Gin,2,Peach Bitters,0,Mint,0
+Stinger, , ,Creme De Menthe (White),0.75,Cognac,1.75
+Cosmopolitan, , ,Triple Sec,0,Citrus Vodka,0,Lime Juice,0.5,Cranberry Juice,1
+Clover Club, , ,Lemon Juice,0.5,Gin,1.5,Raspberry Syrup,0.5,Egg White,0
+Gin Fizz, , ,Simple Syrup,0.25,Gin,1.5,Lemon Juice,1,Club Soda,2.75
+French Connection, , ,Cognac,1.25,Amaretto,1.25
+Mint Julep, , ,Bourbon,2,Powdered Sugar,0,Mint,0,Water,0
+Russian Spring Punch, , ,Simple Syrup,0.25,Lemon Juice,0.75,Vodka,0.75,Creme De Cassis,0.5
+Spritz Veneziano, , ,Club Soda,0,Aperol,0,Prosecco,0
+Americano, , ,Club Soda,0,Red Vermouth,1,Campari,1
+Tuxedo, , ,Dry Vermouth,1,Orange Bitters,0,Absinthe,0,Old Tom Gin,1,Maraschino,0
+Sea Breeze, , ,Grapefruit Juice,1,Vodka,1.25,Cranberry Juice,4
+Black Russian, , ,Vodka,1.75,Coffee Liqueur,0.75
+Angel Face, , ,Gin,1,Apricot Brandy,1,Calvados,1
+Planter's Punch, , ,Simple Syrup,0.25,Grenadine,0.25,Orange Juice,1.25,Dark Rum,1.5,Pineapple Juice,1.25,Angostura Bitters,0,Lemon Juice,0.75
+Bacardi, , ,Grenadine,0.25,White Rum,1.5,Lime Juice,0.75
+Mojito, , ,Mint,0,White Sugar,0,White Rum,1.25,Club Soda,0,Lime Juice,1
+Tommy's Margarita, , ,Agave Nectar,0,Tequila,0,Lime Juice,0
+Caipirinha, , ,Brown Sugar,0,Cachaca,1.75,Lime Wedge,0
+Horse's Neck, , ,Brandy,1.25,Ginger Ale,4,Angostura Bitters,0
+Daiquiri, , ,White Rum,1.5,Simple Syrup,0.5,Lime Juice,0.75
+Dark 'N' Stormy, , ,Dark Rum,2,Ginger Beer,0
+Sidecar, , ,Cognac,1.75,Lemon Juice,0.75,Triple Sec,0.75

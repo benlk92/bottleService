@@ -1905,7 +1905,7 @@ class BottleServiceApp(App):
         with open(ingredientFile) as f:
             reader = csv.reader(f)
             for ing in reader:
-                newIng = Ingredient(ing[0], brand = ing[1], location = int(ing[2]), ingType = ing[3], manual = int(ing[4]), inStock = int(ing[5]), calibration = int(ing[6]))
+                newIng = Ingredient(ing[0].rstrip(), brand = ing[1], location = int(ing[2]), ingType = ing[3], manual = int(ing[4]), inStock = int(ing[5]), calibration = int(ing[6]))
                 ingredientList[newIng.displayNorm] = newIng 
 
         drinkFile = "drinks.csv"
@@ -1959,6 +1959,9 @@ class BottleServiceApp(App):
         BS.glassList.sort()
         BS.typeList.sort()
         BS.prepList.sort()
+
+        # for ingName in BS.ingredientList.keys():
+        #     print ingName
 
         BS.populate()
 

@@ -33,7 +33,7 @@ Tequila,,9,Liquor,0,0,-1
 Campari,,-1,Liqueur,0,0,-1
 Coke,,-1,Sparkles,1,1,-1
 Champagne,,-1,Sparkles,1,1,-1
-Vermouth,,12,Liqueur,0,0,-1
+Dry Vermouth,,12,Liqueur,0,0,-1
 Grenadine,,-1,Liqueur,1,0,-1
 Maraschino,,8,Liqueur,0,0,-1
 Lemon Juice,,-1,Juice,1,1,-1
@@ -49,3 +49,91 @@ Brandy,,-1,Liquor,0,0,-1
 Absinthe,,-1,Liqueur,0,0,-1
 Gin,Tanq,4,Liquor,0,0,-1
 Champagne,Cooks,-1,Sparkles,1,0,-1
+Orange Bitters,,-1,,1,0,-1
+Angostura Bitters,,-1,,1,0,-1
+Absinthe,,-1,,1,0,-1
+Apricot Brandy,,-1,,1,0,-1
+Rye Whiskey,,-1,,1,0,-1
+Calvados,,-1,,1,0,-1
+White Rum,,-1,,1,0,-1
+Ginger Beer,,-1,,1,0,-1
+Orange Juice,,-1,,1,0,-1
+Finely Chopped Onion,,-1,,1,0,-1
+Kahlua,,-1,,1,0,-1
+Gomme Syrup,,-1,,1,0,-1
+Water,,-1,,1,0,-1
+Galliano,,-1,,1,0,-1
+Red Vermouth,,-1,,1,0,-1
+White Sugar,,-1,,1,0,-1
+Gold Rum,,-1,,1,0,-1
+Salt,,-1,,1,0,-1
+Lillet Blonde,,-1,,1,0,-1
+Agave Nectar,,-1,,1,0,-1
+Egg White,,-1,,1,0,-1
+Prosecco,,-1,,1,0,-1
+Mint,,-1,,1,0,-1
+Peychauds Bitters,,-1,,1,0,-1
+Creme De Cassis,,-1,,1,0,-1
+Pineapple Juice,,-1,,1,0,-1
+Drambuie,,-1,,1,0,-1
+Cream,,-1,,1,0,-1
+Sweet Red Vermouth,,-1,,1,0,-1
+Cognac,,-1,,1,0,-1
+Strawberry Syrup,,-1,,1,0,-1
+Champagne,,-1,,1,0,-1
+Celery Salt,,-1,,1,0,-1
+Campari,,-1,,1,0,-1
+Tomato Juice,,-1,,1,0,-1
+Peach Puree,,-1,,1,0,-1
+Tabasco,,-1,,1,0,-1
+Galliano,,-1,,1,0,-1
+Worcestershire,,-1,,1,0,-1
+Baileys Irish Cream,,-1,,1,0,-1
+Brown Sugar,,-1,,1,0,-1
+Irish Whiskey,,-1,,1,0,-1
+Old Tom Gin,,-1,,1,0,-1
+Hot Coffee,,-1,,1,0,-1
+Grapefruit Juice,,-1,,1,0,-1
+Pisco,,-1,,1,0,-1
+Orange Curacao,,-1,,1,0,-1
+Olive Juice,,-1,,1,0,-1
+Cranberry Juice,,-1,,1,0,-1
+Pepper,,-1,,1,0,-1
+Aperol,,-1,,1,0,-1
+Blackberry Liqueur,,-1,,1,0,-1
+Cherry Liqueur,,-1,,1,0,-1
+Cachaca,,-1,,1,0,-1
+Orange Flower Water,,-1,,1,0,-1
+Creme De Menthe (White),,-1,,1,0,-1
+Prosecco,,-1,,1,0,-1
+Red Hot Chili Peppers,,-1,,1,0,-1
+Lemon Twist,,-1,,1,0,-1
+Kirsch,,-1,,1,0,-1
+Coconut Cream,,-1,,1,0,-1
+Benedictine,,-1,,1,0,-1
+Raspberry Syrup,,-1,,1,0,-1
+Raspberry Liqueur,,-1,,1,0,-1
+Ginger Ale,,-1,,1,0,-1
+Creme De Menthe (Green),,-1,,1,0,-1
+Grand Marnier,,-1,,1,0,-1
+Coffee Liqueur,,-1,,1,0,-1
+Powdered Sugar,,-1,,1,0,-1
+Peach Schnapps,,-1,,1,0,-1
+Espresso,,-1,,1,0,-1
+Peach Bitters,,-1,,1,0,-1
+Apricot Brandy,,-1,,1,0,-1
+Orgeat Syrup,,-1,,1,0,-1
+Scotch Whisky,,-1,,1,0,-1
+Creme De Cacao (Brown),,-1,,1,0,-1
+Egg Yolk,,-1,,1,0,-1
+Orange Bitters,,-1,,1,0,-1
+Honey,,-1,,1,0,-1
+Creme De Cacao (White),,-1,,1,0,-1
+Red Port,,-1,,1,0,-1
+Prosecco,,-1,,1,0,-1
+Amaretto,,-1,,1,0,-1
+Vanilla Extract,,-1,,1,0,-1
+Tomato Juice,,-1,,1,0,-1
+Absinthe,,-1,,1,0,-1
+Dry White Wine,,-1,,1,0,-1
+Lime Wedge,,-1,,1,0,-1
