@@ -254,7 +254,7 @@
     id:countPop 
     title: "Just one?"
     size_hint: None, None
-    size: 400,200
+    size: 400,225
     manager: None
     countButton: countButton
     drinkType: "Drink"
@@ -309,14 +309,46 @@
             BoxLayout:
 
                 padding: [0,20,10,20]
-                Spinner:
-                    id: howPourSpinner
-                    text: 'Pour All Together'
-                    values: ['Pour All Together', 'Pour Individually']
+                spacing: 20
+                orientation: 'vertical'
+
+                BoxLayout:
+
+                    Label:
+                        text: 'Pour Individually'
+
+
+                    CheckBox:
+                        id: pourIndividually
+                        active: True
+                        canvas.before:
+                            Color:
+                                rgb: 1,1,1
+                            Rectangle:
+                                pos:self.center_x-8, self.center_y-8
+                                size:[16,16]
+
+                BoxLayout:
+
+                    Label:
+                        text: 'Pour All Together'
+                        
+
+                    CheckBox:
+                        id: pourAllTogether
+                        canvas.before:
+                            Color:
+                                rgb: 1,1,1
+                            Rectangle:
+                                pos:self.center_x-8, self.center_y-8
+                                size:[16,16]
 
         Button:
             id: countButton
-            howPour: howPourSpinner.text
+            size_hint_y: None
+            height: "60dp"
+            pourAllTogether: pourAllTogether
+            pourIndividually: pourIndividually
             text: "Pour " + root.drinkType + "s!"
             count: drinkCount.text
             on_press: countPop.dismiss()
@@ -620,7 +652,8 @@ BottleService:
                     Spinner:
                         id: mainFilter
                         text: 'No Filter'
-                        on_text: root.filterDrinks()
+                        on_text: 
+                            if (mainFilter.text[0:6] != "Filter"): root.filterDrinks()
                     
 
              

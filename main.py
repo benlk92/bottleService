@@ -135,41 +135,6 @@ class Manager(ScreenManager):
 
 class BottleService(BoxLayout):
 
-
-    ingPairings = 14
-
-    GPIO.setmode(GPIO.BCM)
-
-
-    pressurePin = 26
-
-    ullagePressTime = 1.
-
-
-
-    GPIO.setup(pressurePin, GPIO.OUT, initial=0)
-
-
-    ingPins = {
-    0: {'GPIO': 10, 'Calibration': 3},
-    1: {'GPIO': 18, 'Calibration': 3},
-    2: {'GPIO': 9, 'Calibration': 3},
-    3: {'GPIO': 23, 'Calibration': 3},
-    4: {'GPIO': 11, 'Calibration': 3},
-    5: {'GPIO': 24, 'Calibration': 3},
-    6: {'GPIO': 5, 'Calibration': 3},
-    7: {'GPIO': 25, 'Calibration': 3},
-    8: {'GPIO': 6, 'Calibration': 3},
-    9: {'GPIO': 8, 'Calibration': 3},
-    10: {'GPIO': 13, 'Calibration': 3},
-    11: {'GPIO': 7, 'Calibration': 3},
-    12: {'GPIO': 19, 'Calibration': 3},
-    13: {'GPIO': 12, 'Calibration': 3}
-    }
-
-    for pin in ingPins.values():
-        GPIO.setup(pin['GPIO'], GPIO.OUT, initial=0)
-
     row0 = ObjectProperty(None)
     row1 = ObjectProperty(None)
     row2 = ObjectProperty(None)
@@ -269,6 +234,8 @@ class BottleService(BoxLayout):
     isCancelled = False
     pairingMode = True
 
+
+
     def pairPopup(self, text):
 
         self.ingPopup.dismiss()
@@ -280,12 +247,9 @@ class BottleService(BoxLayout):
                 if (self.currentButton.ing != None):
                     oldIng = self.currentButton.ing
                     oldIng.location = -1
-                    oldIng.calibration = -1
 
                 self.currentButton.ing = ing
                 ing.location = self.currentButton.ind
-
-                ing.calibration = -1
 
                 calPop = OptionPopup()
                 calPop.title = "Prime the lines"
@@ -302,21 +266,37 @@ class BottleService(BoxLayout):
                 if (self.currentButton.ing != None):
                     oldIng = self.currentButton.ing
                     oldIng.location = -1
-                    oldIng.calibration = -1
                 self.currentButton.ing = Ingredient(self.unpairedText)
 
         self.filterDrinks()
         self.filterManIngSpinnerList()
 
     def calibrateConfirm(self, calPop, ing, okayButton):
-        calPop = OptionPopup()
+    	calPop.dismiss()
+
+        calPop = TripleOptionPopup()
         calPop.title = "Calibration Specification"
+
+        calPop.option1.ing = ing
         calPop.labelText = ("Use default calibration or\n calibrate %s manually?" % ing.displayNorm)
-        calPop.okayButton.bind(on_press = partial(self.calibrationPrep, calPop, ing))
-        calPop.okayButton.text = "Calibrate Manally"
-        calPop.cancelButton.text = "Default Calibration"
+        calPop.option1.text = "Calibrate Manually"
+        calPop.option1.bind(on_press = partial(self.calibrationPrep, calPop, ing))
+        calPop.option2.text = "Use Ingredient \nCalibration"
+        calPop.option2.bind(on_press = partial(self.dismissCalPop, calPop))
+        calPop.option2.halign =  "center"
+        calPop.option3.text = "Use Default \nCalibration"
+        calPop.option3.halign =  "center"
+
+        calPop.option3.bind(on_press = partial(self.setDefaultCal, calPop))
         calPop.open()
 
+
+    def setDefaultCal(self, calPop, pressedButton):
+    	calPop.option1.ing.calibration = 1
+    	self.dismissCalPop(calPop, None)
+
+    def dismissCalPop(self, calPop, pressedButton):
+    	calPop.dismiss()
 
     def calibrationPrep(self, calPop, ing, okayButton):
 
@@ -347,6 +327,7 @@ class BottleService(BoxLayout):
         calPop.option3.bind(on_release = partial(self.resetCalibration, calPop, ounceCount, ing))
         calPop.open()
 
+
     def updateLabel(self, calPop, ounceCount, ing, okayButton):
 
         if (float(ounceCount) == 1.0):
@@ -362,7 +343,35 @@ class BottleService(BoxLayout):
 
     def calculateCalibration(self, ounceCount, ing, calPop, cancelButton):
         calPop.dismiss()
-        ing.calibration = self.pourTime / float(ounceCount)
+
+        if (self.pourTime != 0):
+
+	        ing.calibration = self.pourTime / float(ounceCount) / self.ingPins[ing.location]['Calibration']
+	        secondsPerOunce = self.pourTime / float(ounceCount)
+
+	        confirmPop = OptionPopup()
+	        confirmPop.title = "Set Default?"
+	        confirmPop.labelText = ("Set %.2f as the default \n calibration for Bottle %d?" % (secondsPerOunce, (1+ing.location)))
+	        confirmPop.okayButton.bind(on_press = partial(self.inputDefaultCal, confirmPop, secondsPerOunce, ing))
+	        confirmPop.okayButton.text = "Yes"
+	        confirmPop.cancelButton.text = "No"
+	        confirmPop.open()
+
+        else:
+
+        	ing.calibration = self.ingPins[ing.location]['Calibration']
+        	stupidPop = MessagePopup()
+        	stupidPop.title = "Default Calibration Set"
+        	stupidPop.labelText = "Calibration time of 0 seconds was entered.\nDefault calibration used instead."
+        	stupidPop.buttonText = "Okay, I guess."
+        	stupidPop.open()
+
+
+    def inputDefaultCal(self, confirmPop, secondsPerOunce, ing, pressedButton):
+    	confirmPop.dismiss()
+    	self.ingPins[ing.location]['Calibration'] = secondsPerOunce
+    	ing.calibration = 1
+
 
     def filterManIngSpinnerList(self):
         pass
@@ -411,12 +420,7 @@ class BottleService(BoxLayout):
         if ((not self.pairingMode) & (pairButton.ing.displayNorm != self.unpairedText)):
             # pairButton.pourDur = pairButton.pourDur + (time() - self.startTime)
 
-            if (pairButton.ing.calibration == -1):
-                calibration = self.ingPins[pairButton.ing.location]["Calibration"]
-            else:
-                calibration = pairButton.ing.calibration 
-
-            pairButton.amtText = ("%.2f Oz." % ((pairButton.pourDur / calibration)))
+            pairButton.amtText = ("%.2f oz." % (pairButton.pourDur / (self.ingPins[pairButton.ing.location]["Calibration"] * pairButton.ing.calibration)))
 
 
     def toggleManualMode(self):
@@ -425,7 +429,7 @@ class BottleService(BoxLayout):
         for curRow in [self.row0, self.row1, self.row2]:
             for curButton in curRow.children:
                 if (curButton.ing.displayNorm != self.unpairedText):
-                    curButton.amtText = "0.00 Oz."
+                    curButton.amtText = "0.00 oz."
                     curButton.pourDur = 0
                 else:
                     curButton.amtText = ""
@@ -490,6 +494,9 @@ class BottleService(BoxLayout):
         self.mainFilter.values.sort()
         self.mainFilter.values.insert(0,"No Filter")
 
+        if ((self.mainFilter.text != "No Filter") & (self.mainFilter.text[0:6] != "Filter")):        
+        	self.mainFilter.text = "Filter By: " + self.mainFilter.text
+
 
 
 
@@ -501,19 +508,26 @@ class BottleService(BoxLayout):
 
 
             for ing in self.drinkList[drink].ingredients.keys():
-                if ((self.ingredientList[ing].manual == 1)):
-                    if ((self.ingredientList[ing].inStock == 0) and (self.displayToggle.active)):
-                        filtered = 0
+
+            	if (ing in self.ingredientList.keys()):
+	                if (self.ingredientList[ing].manual == 1):
+	                    if ((self.ingredientList[ing].inStock == 0) and (self.displayToggle.active)):
+	                        filtered = 0
+
+	                else:
+	                    ingLocList = [ingCheck.location for ingCheck in self.ingredientList.values() if ingCheck.name.lower() == ing.lower()]
+	                    if (not any([True for test in ingLocList if test >= 0])):
+	                        filtered = 0
+
 
                 else:
-                    ingLocList = [ingCheck.location for ingCheck in self.ingredientList.values() if ingCheck.name.lower() == ing.lower()]
-                    if (not any([True for test in ingLocList if test >= 0])):
-                        filtered = 0
+                	for indIng in self.ingredientList.values():
+
+	            		pass
 
 
             if ((self.mainFilter.text not in self.drinkList[drink].ingredients.keys()) & (self.mainFilter.text != "No Filter")):
                 filtered = 0
-
 
             if (filtered == 1):
                 filteredDrinks.append(drink)
@@ -672,6 +686,8 @@ class BottleService(BoxLayout):
 
             self.ingListView.adapter.data.insert(0, listName)
 
+            self.ingListView.adapter.data.sort()
+
             self.ingListCleanup()
 
 
@@ -687,7 +703,7 @@ class BottleService(BoxLayout):
 
 
             if (listName not in self.ingredientList.keys()):
-                self.substituteIngredient(listName, newIng)
+                self.substituteIngredient(newIng)
                 self.deleteIngredient(None, None)
                 newIng.calibration = oldIng.calibration
                 newIng.location = oldIng.location
@@ -703,6 +719,8 @@ class BottleService(BoxLayout):
 
             # Add the student to the ListView
             self.ingListView.adapter.data.insert(0, listName)
+
+            self.ingListView.adapter.data.sort()
 
 
     def ingListCleanup(self):
@@ -762,7 +780,9 @@ class BottleService(BoxLayout):
         self.ingListView._trigger_reset_populate()
 
 
-    def substituteIngredient(self, listName, newIng):
+    def substituteIngredient(self, newIng):
+
+    	listName = newIng.displayNorm
 
         if self.ingListView.adapter.selection:
 
@@ -774,7 +794,7 @@ class BottleService(BoxLayout):
                     newIngs = {}
                     for ing in oldIngs.keys():
                         if (ing == selection):
-                            newIngs[listName] = oldIngs[ing]
+                            newIngs[newIng.name] = oldIngs[ing]
                         else:
                             newIngs[ing] = oldIngs[ing]
 
@@ -970,59 +990,60 @@ class BottleService(BoxLayout):
 
     def populate(self):
 
-        self.ounceInput.text = str(self.ounceSetting)      
-        self.strengthInput.text = str(self.strengthSetting)
 
-        for ing in self.ingredientList.values():
-            self.ingListView.adapter.data.extend([ing.displayNorm])
-        
-            if ing.location != -1:
-                self.initialPairings[ing.location] = ing
+		self.ounceInput.text = str(self.ounceSetting)      
+		self.strengthInput.text = str(self.strengthSetting)
 
-        self.ingListView.adapter.data.sort()
+		for ing in self.ingredientList.values():
+		    self.ingListView.adapter.data.extend([ing.displayNorm])
 
-        self.ingList = list(set([ing.name for ing in self.ingredientList.values()]))
+		    if ing.location != -1:
+		        self.initialPairings[ing.location] = ing
 
-        for drink in self.drinkList.keys():
-            self.drinkListView.adapter.data.extend([drink])
+		self.ingListView.adapter.data.sort()
 
-        self.drinkListView.adapter.data.sort()
+		self.ingList = list(set([ing.name for ing in self.ingredientList.values()]))
 
-        self.filterDrinks()
+		for drink in self.drinkList.keys():
+		    self.drinkListView.adapter.data.extend([drink])
 
+		self.drinkListView.adapter.data.sort()
 
-        # self.glassSpinner.values = self.glassList
-        # self.prepSpinner.values = self.prepList
-
-        for item in self.glassList:
-            self.glassListView.adapter.data.extend([item])
-
-        for item in self.prepList:
-            self.prepListView.adapter.data.extend([item])
-
-        for item in self.typeList:
-            self.typeListView.adapter.data.extend([item])
-
-        self.glassListView.adapter.data.sort()
-        self.prepListView.adapter.data.sort()
-        self.typeListView.adapter.data.sort()
-
-        liquorList = []
-        for ing in self.ingredientList.values():
-            if ((ing.manual == 0) & (ing.location != -1)):
-                liquorList.append(ing.name)
-
-        self.mainFilter.values = list(set(liquorList))
-        self.mainFilter.values.sort()
-        self.mainFilter.values.insert(0,"No Filter")
+		self.filterDrinks()
 
 
+		# self.glassSpinner.values = self.glassList
+		# self.prepSpinner.values = self.prepList
+
+		for item in self.glassList:
+		    self.glassListView.adapter.data.extend([item])
+
+		for item in self.prepList:
+		    self.prepListView.adapter.data.extend([item])
+
+		for item in self.typeList:
+		    self.typeListView.adapter.data.extend([item])
+
+		self.glassListView.adapter.data.sort()
+		self.prepListView.adapter.data.sort()
+		self.typeListView.adapter.data.sort()
+
+		liquorList = []
+		for ing in self.ingredientList.values():
+		    if ((ing.manual == 0) & (ing.location != -1)):
+		        liquorList.append(ing.name)
+
+		self.mainFilter.values = list(set(liquorList))
+		self.mainFilter.values.sort()
+		self.mainFilter.values.insert(0,"No Filter")
 
 
 
-        self.typeList.sort()
 
-        self.popPairIngs()
+
+		self.typeList.sort()
+
+		self.popPairIngs()
 
 
     def updateLists(self):
@@ -1274,6 +1295,7 @@ Button:
                 curDrinkIng["Label"].text = str(drink.ingredients[drinkIng]["Amount"])
 
             self.drinkName.text = drink.name
+
             if drink.prepMethod != "":
                 self.prepSpinnerText = drink.prepMethod
             else:
@@ -1433,10 +1455,10 @@ BoxLayout:
         oldIngs = drink.ingredients
         newIngs = {}
 
-        if (button.howPour == "Pour All Together"):
+        if (button.pourAllTogether.active):
             drinkPourCount = float(button.count[0])
             repeatTarget = 1.0
-        elif (button.howPour == "Pour Individually"):
+        else:
             drinkPourCount = 1.0
             repeatTarget = float(button.count[0])
 
@@ -1480,7 +1502,7 @@ BoxLayout:
         progressPop.manager = self.manager
         progressPop.repeatTarget = repeatTarget
         progressPop.drink = drink
-        progressPop.cancelButton.bind(on_press = partial(self.cancelPour))
+        progressPop.cancelButton.bind(on_press = partial(self.cancelPour, progressPop))
 
         if (repeatTarget > 1):
             progressPop.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressPop.repeatCount + 1), progressPop.repeatTarget))
@@ -1514,11 +1536,7 @@ BoxLayout:
                 else:
                     curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
 
-                if (curIng.calibration == -1):
-                    ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curLocation["Calibration"], "Pin": curPin}
-                else:
-                    ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curIng.calibration, "Pin": curPin}
-
+                ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curIng.calibration * curLocation["Calibration"], "Pin": curPin}
 
                 if (ingsToPour[ing]["Time"] > pourDur):
                     pourDur = ingsToPour[ing]["Time"]
@@ -1576,18 +1594,26 @@ BoxLayout:
 
             self.pbEvent = Clock.schedule_interval(partial(self.incrementPB, progressPop), (pourDur + self.ullagePressTime) / 100.)
 
-            t = threading.Thread(target=self.openValves, args = [ingsToPour, None])
+            t = threading.Thread(target=self.openValves, args = [ingsToPour])
             t.start()
 
         else:
             progressPop.dismiss()
             self.manager.current = "One"
 
-    def cancelPour(self, cancelButton):
+    def cancelPour(self, makePop, cancelButton):
         self.isCancelled = True
+        makePop.continueButton.text = "Drink Cancelled\nClick to Continue"
+
 
         for pin in self.ingPins.values():
             GPIO.output(pin["GPIO"],0)
+
+        if ((makePop.repeatCount == 0) | (makePop.pbValue == 0) | (makePop.pbValue >= 100)):
+	        makePop.dismiss()
+	        self.manager.current = "One"
+
+        makePop.repeatCount = 10
 
 
     def pourExactConfirm(self, ingName, ingAmount):
@@ -1642,20 +1668,24 @@ BoxLayout:
 
         else:
 
-            if (self.isCancelled):
-                progressBar.repeatCount = progressBar.repeatTarget
-                progressBar.pbValue = 0
+        	progressBar.continueButton.disabled = False
 
-            progressBar.continueButton.disabled = False
-            if (progressBar.repeatCount < progressBar.repeatTarget):
-                progressBar.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressBar.repeatCount + 1), progressBar.repeatTarget))
-            else:
-                progressBar.continueButton.text = "Click to Continue"
+        	if (self.isCancelled):
+			    progressBar.repeatCount = progressBar.repeatTarget
+			    progressBar.pbValue = 0
+			    progressBar.continueButton.text = "Drink Cancelled\nClick to Continue"
 
-            self.pbEvent.cancel()
+	        else:
+
+	            if (progressBar.repeatCount < progressBar.repeatTarget):
+	                progressBar.continueButton.text = ("Click to Pour Drink %d of %d" % ((progressBar.repeatCount + 1), progressBar.repeatTarget))
+	            else:
+	                progressBar.continueButton.text = "Click to Continue"
+
+	            self.pbEvent.cancel()
 
 
-    def openValves(self, ingsToPour, purgePopup):
+    def openValves(self, ingsToPour):
 
         times = []
         pins = []
@@ -1688,13 +1718,6 @@ BoxLayout:
             GPIO.output(pin["Pin"],0)
 
         GPIO.output(self.pressurePin, 0)
-
-
-        if (purgePopup != None):
-            purgePopup.labelText = "Purge complete."
-            purgePopup.messageButton.disabled = False
-
-
 
 
     def addRow(self, layout):
@@ -1849,7 +1872,7 @@ BoxLayout:
 
         calPop = OptionPopup()
         calPop.title = "Purge Lines?"
-        calPop.labelText = "Purge .125 ounces from all locations \n with paired ingredients?"
+        calPop.labelText = "Purge all paired locations?"
         calPop.okayButton.bind(on_press = partial(self.purgeLines, calPop))
 
         calPop.okayButton.text = "Confirm"
@@ -1877,13 +1900,34 @@ BoxLayout:
                     curLocation = self.ingPins[curIng.location]
                     curPin = curLocation["GPIO"]
 
-                    if (curIng.calibration == -1):
-                        ingsToPour[curIng.displayNorm] = {"Time": purgeOunces * curLocation["Calibration"], "Pin": curPin}
-                    else:
-                        ingsToPour[curIng.displayNorm] = {"Time": purgeOunces * curIng.calibration, "Pin": curPin}
+                    ingsToPour[curIng.displayNorm] = {"Time": purgeOunces * curLocation["Calibration"] * curIng.calibration, "Pin": curPin}
 
-        t = threading.Thread(target=self.openValves, args = [ingsToPour, stupidPop])
+        t = threading.Thread(target=self.thePurge, args = [ingsToPour, stupidPop])
         t.start()
+
+
+    def thePurge(self, ingsToPour, purgePopup):
+    	
+        pins = []
+        for ing in ingsToPour.keys():
+            pins.append(ingsToPour[ing]["Pin"])
+
+        GPIO.output(self.pressurePin, 1)
+        sleep(self.ullagePressTime)
+
+        for i, pin in enumerate(ingsToPour.values()):
+            GPIO.output(pin["Pin"],1)
+            sleep(.75)
+            GPIO.output(pin["Pin"],0)
+            purgePopup.labelText = ("Purge %d of %d complete." % ((i + 1), len(ingsToPour)))
+
+
+        for pin in ingsToPour.values():
+            GPIO.output(pin["Pin"],0)
+
+        GPIO.output(self.pressurePin, 0)
+
+        purgePopup.messageButton.disabled = False
 
 
 
@@ -1900,6 +1944,13 @@ class BottleServiceApp(App):
 
         Clock.schedule_interval(self._update_clock, 1 / 60.)
 
+        ingPins = {}
+        with open("calibrationPairing.csv") as f:
+            reader = csv.reader(f)
+            items = []
+            for item in reader:
+                ingPins[int(item[0])] = {'GPIO': int(item[1]), 'Calibration': float(item[2])} 
+        
 
         ingredientFile = "ingredients.csv"
         self.ingredientFile = ingredientFile
@@ -1907,7 +1958,7 @@ class BottleServiceApp(App):
         with open(ingredientFile) as f:
             reader = csv.reader(f)
             for ing in reader:
-                newIng = Ingredient(ing[0].rstrip(), brand = ing[1], location = int(ing[2]), ingType = ing[3], manual = int(ing[4]), inStock = int(ing[5]), calibration = int(ing[6]))
+                newIng = Ingredient(ing[0].rstrip(), brand = ing[1], location = int(ing[2]), ingType = ing[3], manual = int(ing[4]), inStock = int(ing[5]), calibration = float(ing[6]))
                 ingredientList[newIng.displayNorm] = newIng 
 
         drinkFile = "drinks.csv"
@@ -1916,10 +1967,11 @@ class BottleServiceApp(App):
         with open(drinkFile) as f:
             reader = csv.reader(f)
             for drink in reader:
-                drinkIngs = {}
-                for trip in range(3,len(drink)-1, 2):
-                    drinkIngs[drink[trip]] = {"Amount":float(drink[trip + 1])}
-                drinkList[drink[0]] = Drink(drink[0], glassware = drink[1], prepMethod = drink[2], ingredients = drinkIngs)
+            	if (len(drink) > 0):
+	                drinkIngs = {}
+	                for trip in range(3,len(drink)-1, 2):
+	                    drinkIngs[drink[trip]] = {"Amount":float(drink[trip + 1])}
+	                drinkList[drink[0]] = Drink(drink[0], glassware = drink[1], prepMethod = drink[2], ingredients = drinkIngs)
 
         settings = [{"File": "glassware.csv", "List":[]}, {"File": "types.csv", "List":[]}, {"File": "prepMethods.csv", "List":[]}]
         for sett in settings:    
@@ -1930,12 +1982,30 @@ class BottleServiceApp(App):
 
         BS = BottleService()
 
+        BS.ingPins = ingPins
+
+
+        GPIO.setmode(GPIO.BCM)
+
+        pressurePin = 26
+
+        ullagePressTime = 1.
+
+        GPIO.setup(pressurePin, GPIO.OUT, initial=0)
+
+        for pin in ingPins.values():
+		    GPIO.setup(pin['GPIO'], GPIO.OUT, initial=0)
+
+
         with open("generalSettings.csv") as f:
             reader = csv.reader(f)
             items = []
             for i, item in enumerate(reader):
-                items.append(item[0])       
-                    
+                items.append(item[0])    
+
+
+        BS.pressurePin = pressurePin
+        BS.ullagePressTime = ullagePressTime            
         BS.robotName.text = items[0]
         BS.ounceSetting = float(items[1])
         BS.strengthSetting = float(items[2])
@@ -1961,9 +2031,6 @@ class BottleServiceApp(App):
         BS.glassList.sort()
         BS.typeList.sort()
         BS.prepList.sort()
-
-        # for ingName in BS.ingredientList.keys():
-        #     print ingName
 
         BS.populate()
 
@@ -2008,7 +2075,16 @@ class BottleServiceApp(App):
             writer.writerow([self.BS.strengthInput.text])        
             writer.writerow([self.BS.maxAmtInput.text])        
             writer.writerow([self.BS.shotInput.text])        
-            writer.writerow([int(self.BS.displayToggle.active)])        
+            writer.writerow([int(self.BS.displayToggle.active)])  
+
+
+
+        with open("calibrationPairing.csv", "w") as f:
+			writer = csv.writer(f, delimiter=",")        	
+			for ind in self.BS.ingPins.keys():
+				writeRow = [str(ind), str(self.BS.ingPins[ind]['GPIO']), str(self.BS.ingPins[ind]['Calibration'])]
+				writer.writerow(writeRow)
+      
 
 
     def _update_clock(self, dt):
