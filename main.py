@@ -269,7 +269,6 @@ class BottleService(BoxLayout):
                 self.currentButton.ing = Ingredient(self.unpairedText)
 
         self.filterDrinks()
-        self.filterManIngSpinnerList()
 
     def calibrateConfirm(self, calPop, ing, okayButton):
     	calPop.dismiss()
@@ -371,12 +370,6 @@ class BottleService(BoxLayout):
     	confirmPop.dismiss()
     	self.ingPins[ing.location]['Calibration'] = secondsPerOunce
     	ing.calibration = 1
-
-
-    def filterManIngSpinnerList(self):
-        pass
-        # self.manualIngSpinner.values  = [ing.displayNorm for ing in self.ingredientList.values() if ing.location != -1]
-        # self.manualIngSpinner.values.sort()
 
 
     def setCurButton(self, pairButton):
@@ -521,9 +514,9 @@ class BottleService(BoxLayout):
 
 
                 else:
-                	for indIng in self.ingredientList.values():
-
-	            		pass
+                    ingLocList = [ingCheck.location for ingCheck in self.ingredientList.values() if ingCheck.name.lower() == ing.lower()]
+                    if (not any([True for test in ingLocList if test >= 0])):
+                        filtered = 0
 
 
             if ((self.mainFilter.text not in self.drinkList[drink].ingredients.keys()) & (self.mainFilter.text != "No Filter")):
@@ -589,6 +582,7 @@ class BottleService(BoxLayout):
 
 
     def openNewIngPopup(self):
+        self.editingIng = 0
         newIngPopup = self.genIngPopup()
         newIngPopup.submitButton.bind(on_press = partial(self.addNewIngredient, newIngPopup))
         newIngPopup.open()
@@ -604,10 +598,10 @@ class BottleService(BoxLayout):
         else:
             newIngPopup = self.genIngPopup()
             newIngPopup.submitButton.bind(on_press = self.editIngredient)
-
             newIngPopup.open()
-            self.popIngFields()
 
+            self.editingIng = 1
+            self.popIngFields()
 
 
     def genIngPopup(self):
@@ -628,7 +622,7 @@ class BottleService(BoxLayout):
     
     def confirmIngredient(self):
 
-        newIng = Ingredient(self.ingName.text.rstrip(), brand = self.brand.text.rstrip())
+        newIng = Ingredient(str(self.ingName.text.rstrip()), brand = str(self.brand.text.rstrip()))
 
         if self.ingTypeSpinner.text != "Type":
             newIng.ingType = self.ingTypeSpinner.text
@@ -658,20 +652,15 @@ class BottleService(BoxLayout):
             return -1
 
         # If there is no selection, just check if what"s trying to be added is already in the list
-        if not self.ingListView.adapter.selection:
-
-            if (self.formatIngInputs() in self.ingredientList.keys()):
-                warnPop = MessagePopup()
-                warnPop.title = "Ingredient Error"
-                warnPop.labelText = "Identical ingredient exists.  Duplicates not allowed. \nConsider adding or altering the brand."
-                warnPop.open()
-
-            else:
-                return newIng
+        if ((newIng.displayNorm in self.ingredientList.keys()) & (self.editingIng == 0)):
+            warnPop = MessagePopup()
+            warnPop.title = "Ingredient Error"
+            warnPop.labelText = "Identical ingredient exists.  Duplicates not allowed. \nConsider adding or altering the brand."
+            warnPop.open()
+            return -1
 
         else:
             return newIng
-
 
 
 
@@ -703,7 +692,7 @@ class BottleService(BoxLayout):
 
 
             if (listName not in self.ingredientList.keys()):
-                self.substituteIngredient(newIng)
+                self.substituteIngredient(newIng, oldIng)
                 self.deleteIngredient(None, None)
                 newIng.calibration = oldIng.calibration
                 newIng.location = oldIng.location
@@ -780,13 +769,13 @@ class BottleService(BoxLayout):
         self.ingListView._trigger_reset_populate()
 
 
-    def substituteIngredient(self, newIng):
+    def substituteIngredient(self, newIng, oldIng):
 
     	listName = newIng.displayNorm
 
         if self.ingListView.adapter.selection:
 
-            selection = self.ingListView.adapter.selection[0].text
+            selection = oldIng.name
 
             for drink in self.drinkList.values():
                 oldIngs = drink.ingredients
@@ -804,7 +793,7 @@ class BottleService(BoxLayout):
             for curRow in [self.row0, self.row1, self.row2]:
                 for curButton in curRow.children:
                     if (curButton.ing.displayNorm != self.unpairedText):
-                        if (curButton.text == selection):
+                        if (curButton.text == oldIng.displaySmall):
                             curButton.ing = newIng
 
 
@@ -1063,13 +1052,7 @@ class BottleService(BoxLayout):
         # self.prepListView.adapter.data.sort()
         # self.prepSpinner.values.insert(0, self.prepName)
 
-
-    def popIngLabel(self, curListView):
-        pass
-
     def popPairIngs(self):
-
-        self.ingListView.adapter.bind(on_selection_change = self.popIngLabel)
 
         self.updateLists()
 
@@ -1291,7 +1274,10 @@ Button:
             for drinkIng in drink.ingredients.keys():
                 curDrinkIng = self.addRow(layout)
                 curDrinkIng["Spinner"].text = drinkIng
-                curDrinkIng["TypeSpinner"].text = self.ingredientList[drinkIng].ingType
+                if (drinkIng in self.ingredientList.keys()):
+                    curDrinkIng["TypeSpinner"].text = self.ingredientList[drinkIng].ingType
+                else: 
+                    curDrinkIng["TypeSpinner"].text = ""
                 curDrinkIng["Label"].text = str(drink.ingredients[drinkIng]["Amount"])
 
             self.drinkName.text = drink.name
@@ -1358,8 +1344,15 @@ Button:
                 # self.shotTitle.text = "Pour Shot of " + drink.name
                 self.manager.current = "Five"
                 drinkCount = -1
-                for i, drinkIng in enumerate(drink.ingredients.keys()):
-                    if (self.ingredientList[drinkIng].manual == 0):
+                for i, baseIngName in enumerate(drink.ingredients.keys()):
+                    for testIng in self.ingredientList.values():
+                        if testIng.name == baseIngName:
+                            ingKey = testIng.displayNorm
+
+                    if (baseIngName in self.ingredientList.keys()):
+                        ingKey = baseIngName
+
+                    if (self.ingredientList[ingKey].manual == 0):
                         drinkCount = drinkCount + 1
                         newRow = Builder.load_string("""
 BoxLayout:
@@ -1397,15 +1390,18 @@ BoxLayout:
                 pos:self.center_x-8, self.center_y-8
                 size:[16,16]
 
-""" % (drinkIng, self.strengthSetting * -1, self.strengthSetting))
+""" % (baseIngName, self.strengthSetting * -1, self.strengthSetting))
 
 
-                        newRow.brands = [ing.brand for ing in self.ingredientList.values() if ((ing.name == drinkIng) & (ing.location != -1))]
+                        newRow.brands = [ing.brand for ing in self.ingredientList.values() if ((ing.name == baseIngName) & (ing.location != -1))]
                         if ("" in newRow.brands):
                             newRow.brands.remove("")
 
-                        if (self.ingredientList[drinkIng].location != -1):
-                            newRow.brands.append("-")
+                        if (baseIngName in self.ingredientList.keys()):
+                            if (self.ingredientList[ingKey].location != -1):
+                                print "found Gin"
+                                newRow.brands.append("-")
+
                         layout.add_widget(newRow)
                         layout.height = (str(drinkCount * 30 + 35) + "dp")
 
@@ -1455,13 +1451,12 @@ BoxLayout:
         oldIngs = drink.ingredients
         newIngs = {}
 
-        if (button.pourAllTogether.active):
-            drinkPourCount = float(button.count[0])
-            repeatTarget = 1.0
-        else:
+        if (button.pourIndividually.active):
             drinkPourCount = 1.0
             repeatTarget = float(button.count[0])
-
+        else:
+            drinkPourCount = float(button.count[0])
+            repeatTarget = 1.0
 
               
         for ing in oldIngs.keys():
@@ -1514,32 +1509,58 @@ BoxLayout:
         ingsToPour = {}
         pourDur = 0
 
-        for ing in drink.ingredients.keys():
-            if (self.ingredientList[ing].manual == 1):
+
+        for row in self.curDrinkManager:
+            ingName = row["Ingredient"]
+            if (row["Spinner"].text != "-"):
+                ingName = row["Spinner"].text + " " + ingName
+
+            curIng = self.ingredientList[ingName]
+            ing = curIng.name
+
+            if (curIng.manual == 1):
                 ingCount = ingCount + 1
                 ingMessage = ingMessage + str(round(drink.ingredients[ing]["Amount"], 2)) + " ounces of " + ing + ",\n"
 
-            elif (self.ingredientList[ing].manual == 0):
-                if (len(self.curDrinkManager) > 0):
-                    for row in self.curDrinkManager:
-                        if ing == row["Ingredient"]:
-                            if (row["Spinner"].text == "-"):
-                                curIng = self.ingredientList[ing]
-                                curLocation = self.ingPins[curIng.location]
-                                curPin = curLocation['GPIO']
-                            else:
-                                for ingBrand in self.ingredientList.values():
-                                    if ((ingBrand.brand == row["Spinner"].text) & (ingBrand.name == ing)):
-                                        curIng = ingBrand
-                                        curLocation = self.ingPins[ingBrand.location]
-                                        curPin = curLocation['GPIO']
-                else:
-                    curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
+            else:
+                curLocation = self.ingPins[curIng.location]
+                curPin = curLocation['GPIO']
 
                 ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curIng.calibration * curLocation["Calibration"], "Pin": curPin}
 
                 if (ingsToPour[ing]["Time"] > pourDur):
                     pourDur = ingsToPour[ing]["Time"]
+
+        print pourDur
+
+        # for ing in drink.ingredients.keys():
+
+        #     if (ing in self.ingredientList.keys()):
+        #         if (self.ingredientList[ing].manual == 1):
+        #             ingCount = ingCount + 1
+        #             ingMessage = ingMessage + str(round(drink.ingredients[ing]["Amount"], 2)) + " ounces of " + ing + ",\n"
+
+        #         elif (self.ingredientList[ing].manual == 0):
+        #             if (len(self.curDrinkManager) > 0):
+        #                 for row in self.curDrinkManager:
+        #                     if ing == row["Ingredient"]:
+        #                         if (row["Spinner"].text == "-"):
+        #                             curIng = self.ingredientList[ing]
+        #                             curLocation = self.ingPins[curIng.location]
+        #                             curPin = curLocation['GPIO']
+        #                         else:
+        #                             for ingBrand in self.ingredientList.values():
+        #                                 if ((ingBrand.brand == row["Spinner"].text) & (ingBrand.name == ing)):
+        #                                     curIng = ingBrand
+        #                                     curLocation = self.ingPins[ingBrand.location]
+        #                                     curPin = curLocation['GPIO']
+        #             else:
+        #                 curPin = self.ingPins[self.ingredientList[ing].location]['GPIO']
+
+        #             ingsToPour[ing] = {"Time": drink.ingredients[ing]["Amount"] * curIng.calibration * curLocation["Calibration"], "Pin": curPin}
+
+        #             if (ingsToPour[ing]["Time"] > pourDur):
+        #                 pourDur = ingsToPour[ing]["Time"]
 
 
         ingMessage = ingMessage[:-2]
